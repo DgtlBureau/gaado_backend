@@ -1,0 +1,16 @@
+# Netscape HTTP Cookie File
+# Это пример файла. Скопируйте его в cookies.txt и замените значения на реальные из браузера.
+#
+# Инструкция по получению cookies:
+# 1. Откройте Facebook в браузере и войдите
+# 2. Нажмите F12 для открытия Developer Tools
+# 3. Application → Cookies → https://www.facebook.com
+# 4. Найдите cookies: c_user, xs, datr
+# 5. Замените значения ниже на реальные
+#
+# Или запустите: python3 get_facebook_cookies.py
+
+.facebook.com	TRUE	/	FALSE	0	c_user	YOUR_C_USER_VALUE_HERE
+.facebook.com	TRUE	/	FALSE	0	xs	YOUR_XS_VALUE_HERE
+.facebook.com	TRUE	/	FALSE	0	datr	YOUR_DATR_VALUE_HERE
+

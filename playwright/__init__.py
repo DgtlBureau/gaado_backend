@@ -1,0 +1,4 @@
+"""
+Playwright browser automation module
+"""
+

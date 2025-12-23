@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Facebook cookies (секретные данные)
+cookies.txt
+*.cookies
+
+# Cloudflare
+.wrangler/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+

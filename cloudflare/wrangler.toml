@@ -1,0 +1,31 @@
+name = "gaado-backend"
+main = "main.py"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["python_workers"]
+
+[env.production]
+name = "gaado-backend"
+
+[env.staging]
+name = "gaado-backend-staging"
+
+# Python runtime configuration
+# Note: Cloudflare Workers for Python requires Python 3.11+
+# Dependencies are automatically installed from requirements.txt
+
+# Environment variables (set via Cloudflare dashboard or wrangler secret)
+# Hugging Face Configuration
+# HUGGINGFACE_API_TOKEN - set via: wrangler secret put HUGGINGFACE_API_TOKEN
+# HUGGINGFACE_MODEL - optional, defaults to sentiment analysis model
+# HUGGINGFACE_API_URL - optional, defaults to https://api-inference.huggingface.co/models
+
+# ChromaDB Configuration
+# For Cloudflare Workers, use ChromaDB Cloud or external instance:
+# CHROMA_API_URL - set via: wrangler secret put CHROMA_API_URL
+# CHROMA_API_KEY - set via: wrangler secret put CHROMA_API_KEY
+# CHROMA_COLLECTION_NAME - optional, defaults to "gaado_documents"
+# EMBEDDING_MODEL - optional, defaults to "sentence-transformers/all-MiniLM-L6-v2"
+
+# Note: ChromaDB requires external instance for Cloudflare Workers deployment
+# Local file-based ChromaDB won't work in Workers environment
+
