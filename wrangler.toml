@@ -3,49 +3,12 @@ main = "main.py"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["python_workers"]
 
-# Python version (Cloudflare Workers requires Python 3.11+)
-# Note: Cloudflare Workers automatically uses Python 3.11+
-# Wrangler will automatically detect and use requirements.txt
-
-# D1 Database Configuration
-# Create D1 database: wrangler d1 create gaado-db
-# Database ID will be shown after creation
-# Then bind it to your worker:
+# D1 Database Configuration for local development
 [[d1_databases]]
 binding = "DB"
-database_name = "gaado-db"
-database_id = "YOUR_DATABASE_ID_HERE"  # Replace with your actual database ID
+database_name = "gaado-db-local"
+database_id = "9a4c591a-b7d1-4227-99ec-c2833b35dff7"
 
-[env.production]
-name = "gaado-backend"
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "gaado-db"
-database_id = "YOUR_PRODUCTION_DATABASE_ID_HERE"  # Replace with production database ID
-
-[env.staging]
-name = "gaado-backend-staging"
-[[env.staging.d1_databases]]
-binding = "DB"
-database_name = "gaado-db-staging"
-database_id = "YOUR_STAGING_DATABASE_ID_HERE"  # Replace with staging database ID
-
-# Python runtime configuration
-# Note: Cloudflare Workers for Python requires Python 3.11+
-# Dependencies are automatically installed from requirements.txt
-# Note: Some packages in requirements.txt are marked for local dev only and won't be used in Workers
-
-# Environment variables (set via Cloudflare dashboard or wrangler secret)
-# Gemini Configuration
-# GEMINI_API_KEY - set via: wrangler secret put GEMINI_API_KEY
-
-# ChromaDB Configuration
-# For Cloudflare Workers, use ChromaDB Cloud or external instance:
-# CHROMA_API_URL - set via: wrangler secret put CHROMA_API_URL
-# CHROMA_API_KEY - set via: wrangler secret put CHROMA_API_KEY
-# CHROMA_COLLECTION_NAME - optional, defaults to "gaado_documents"
-# EMBEDDING_MODEL - optional, defaults to "sentence-transformers/all-MiniLM-L6-v2"
-
-# Note: ChromaDB requires external instance for Cloudflare Workers deployment
-# Local file-based ChromaDB won't work in Workers environment
-
+# Environment variables
+[vars]
+GEMINI_API_KEY = "AIzaSyCjR4jjuqiP37mx_QTqif7ZEKEnpwFSKg0"

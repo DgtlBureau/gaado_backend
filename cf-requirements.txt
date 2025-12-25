@@ -1,0 +1,5 @@
+setuptools
+wheel
+fastapi
+pydantic
+google-genai

@@ -1,14 +1,4 @@
-# Build tools (required for package installation)
-setuptools>=65.0.0
-wheel>=0.40.0
-
-# Core dependencies
-fastapi>=0.127.0
-uvicorn==0.24.0
-pydantic>=2.7.0
-httpx==0.25.2
-python-dotenv==1.0.0
+fastapi>=0.100.0
+pydantic>=2.0.0
 google-genai>=1.0.0
-
-
 

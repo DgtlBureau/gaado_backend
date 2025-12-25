@@ -4,6 +4,7 @@ Simplified version without ChromaDB dependencies
 """
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, HTMLResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 import logging
@@ -11,10 +12,8 @@ import sys
 import os
 import json
 from datetime import datetime
-from dotenv import load_dotenv
 from gemini.gemini_client import GeminiClient
 from database import init_database, get_database
-from starlette.middleware.base import BaseHTTPMiddleware
 from feed import router as feed_router
 
 # Cloudflare Workers imports
@@ -27,9 +26,6 @@ except ImportError:
     WorkerEntrypoint = None
     asgi = None
 
-# Load environment variables from .env file (only for local development)
-if not IS_CLOUDFLARE_WORKERS:
-    load_dotenv()
 
 # Configure logging - DEBUG level for debugging
 # Explicitly set output to stderr (terminal)
@@ -82,10 +78,8 @@ class DatabaseMiddleware(BaseHTTPMiddleware):
         if db_binding is not None:
             from database import _db_instance
             if _db_instance is None or not _db_instance.is_d1_available or _db_instance.db != db_binding:
-                db = init_database(db_binding)
-                # Initialize schema only once per binding
-                if not _db_instance or not _db_instance.is_d1_available:
-                    await db.init_schema()
+                init_database(db_binding)
+                # Schema initialization happens in startup_event, not here
         
         response = await call_next(request)
         return response

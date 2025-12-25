@@ -27,6 +27,7 @@ class Database:
         """
         self.db = db
         self.is_d1_available = db is not None
+        self._schema_initialized = False  # Flag to prevent multiple schema initializations
         
         if not self.is_d1_available:
             logger.warning("D1 database not available, using in-memory storage for local development")
@@ -45,8 +46,13 @@ class Database:
         Initialize database schema (create tables if they don't exist)
         Should be called once during application startup
         """
+        # Prevent multiple initializations
+        if self._schema_initialized:
+            return
+        
         if not self.is_d1_available:
             logger.info("Skipping schema initialization (using in-memory storage)")
+            self._schema_initialized = True
             return
         
         try:
@@ -296,6 +302,7 @@ class Database:
             """)
             
             logger.info("Database schema initialized successfully")
+            self._schema_initialized = True
         except Exception as e:
             logger.error(f"Error initializing database schema: {e}")
             raise

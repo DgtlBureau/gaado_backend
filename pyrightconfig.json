@@ -1,0 +1,26 @@
+{
+    "venvPath": ".",
+    "venv": "venv",
+    "pythonVersion": "3.9",
+    "pythonPlatform": "Darwin",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "pythonVersion": "3.9",
+            "pythonPlatform": "Darwin",
+            "extraPaths": [
+                "${workspaceFolder}/venv/lib/python3.9/site-packages"
+            ]
+        }
+    ],
+    "include": [
+        "."
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "**/.*",
+        "venv"
+    ]
+}
+
