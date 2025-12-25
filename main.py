@@ -18,8 +18,19 @@ from database import init_database, get_database
 from starlette.middleware.base import BaseHTTPMiddleware
 from feed import router as feed_router
 
-# Load environment variables from .env file
-load_dotenv()
+# Cloudflare Workers imports
+try:
+    from workers import WorkerEntrypoint
+    import asgi
+    IS_CLOUDFLARE_WORKERS = True
+except ImportError:
+    IS_CLOUDFLARE_WORKERS = False
+    WorkerEntrypoint = None
+    asgi = None
+
+# Load environment variables from .env file (only for local development)
+if not IS_CLOUDFLARE_WORKERS:
+    load_dotenv()
 
 # Configure logging - DEBUG level for debugging
 # Explicitly set output to stderr (terminal)
@@ -56,7 +67,7 @@ class DatabaseMiddleware(BaseHTTPMiddleware):
         
         # Check if we're in Cloudflare Workers environment
         # D1 binding is typically available as env.DB in Workers
-        # For FastAPI on Workers, it might be in request.scope or request.state
+        # For FastAPI on Workers, it's in request.scope['env']
         try:
             # Try to get from request scope (Cloudflare Workers pattern)
             if hasattr(request, 'scope') and 'env' in request.scope:
@@ -889,19 +900,31 @@ async def chat_with_huggingface(request: HuggingFaceChatRequest):
 
 
 @app.post("/gemini/chat")
-async def chat_with_gemini(request: GeminiChatRequest):
+async def chat_with_gemini(request: GeminiChatRequest, req: Request):
     """
     Endpoint for chatting with Gemini model
     
     Args:
         request: Request with prompt text and optional model name
+        req: FastAPI Request object for accessing environment variables
         
     Returns:
         Response from AI model
     """
     try:
         # Get API key from environment variable
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        # In Cloudflare Workers, env is available in request.scope['env']
+        gemini_api_key = None
+        if hasattr(req, 'scope') and 'env' in req.scope:
+            env = req.scope.get('env', {})
+            if isinstance(env, dict):
+                gemini_api_key = env.get('GEMINI_API_KEY')
+            else:
+                gemini_api_key = getattr(env, 'GEMINI_API_KEY', None)
+        
+        # Fallback to os.getenv for local development
+        if not gemini_api_key:
+            gemini_api_key = os.getenv("GEMINI_API_KEY")
         
         # Create client with API key
         client = GeminiClient(api_key=gemini_api_key)
@@ -938,3 +961,10 @@ async def http_exception_handler(request, exc):
         status_code=exc.status_code,
         content={"error": exc.detail, "status_code": exc.status_code}
     )
+
+
+# Cloudflare Workers entrypoint
+if IS_CLOUDFLARE_WORKERS:
+    class Default(WorkerEntrypoint):
+        async def fetch(self, request):
+            return await asgi.fetch(app, request, self.env)

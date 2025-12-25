@@ -36,6 +36,9 @@ database_id = "YOUR_STAGING_DATABASE_ID_HERE"  # Replace with staging database I
 # Note: Some packages in requirements.txt are marked for local dev only and won't be used in Workers
 
 # Environment variables (set via Cloudflare dashboard or wrangler secret)
+# Gemini Configuration
+# GEMINI_API_KEY - set via: wrangler secret put GEMINI_API_KEY
+
 # Hugging Face Configuration
 # HUGGINGFACE_API_TOKEN - set via: wrangler secret put HUGGINGFACE_API_TOKEN
 # HUGGINGFACE_MODEL - optional, defaults to sentiment analysis model
