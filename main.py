@@ -2,87 +2,121 @@
 FastAPI application for processing scraped data
 Simplified version without HuggingFace and ChromaDB dependencies
 """
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 import logging
+import sys
 import os
+import json
 from datetime import datetime
-from facebook.facebook_client import FacebookScraperClient
+from dotenv import load_dotenv
 from huggingface.huggingface_client import HuggingFaceClient
+from gemini.gemini_client import GeminiClient
+from database import init_database, get_database
+from starlette.middleware.base import BaseHTTPMiddleware
+from feed import router as feed_router
 
-# Настройка логирования - DEBUG для отладки
+# Load environment variables from .env file
+load_dotenv()
+
+# Configure logging - DEBUG level for debugging
+# Explicitly set output to stderr (terminal)
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stderr,
+    force=True  # Переопределяем существующую конфигурацию
 )
 logger = logging.getLogger(__name__)
-# Включаем DEBUG для facebook_client
-logging.getLogger('facebook_client').setLevel(logging.DEBUG)
 
 app = FastAPI(
     title="Gaado Backend API",
     description="API for processing scraped data (simplified version)",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None,
+    redoc_url=None
 )
 
 
-def get_c_user_from_cookies() -> str:
-    """
-    Извлекает значение c_user из файла facebook/cookies.txt
+# Initialize database on startup (with None binding for local dev)
+# In Cloudflare Workers, D1 binding will be set via middleware
+init_database(None)
+
+
+# Middleware to set D1 database binding from Cloudflare Workers environment
+class DatabaseMiddleware(BaseHTTPMiddleware):
+    """Middleware to inject D1 database binding from Cloudflare Workers env"""
     
-    Returns:
-        Значение c_user или "none" если не найдено
-    """
-    cookies_file = os.getenv("FACEBOOK_COOKIES_FILE", "facebook/cookies.txt")
+    async def dispatch(self, request: Request, call_next):
+        # In Cloudflare Workers, env is available in request scope
+        # Try to get D1 binding from request state or environment
+        db_binding = None
+        
+        # Check if we're in Cloudflare Workers environment
+        # D1 binding is typically available as env.DB in Workers
+        # For FastAPI on Workers, it might be in request.scope or request.state
+        try:
+            # Try to get from request scope (Cloudflare Workers pattern)
+            if hasattr(request, 'scope') and 'env' in request.scope:
+                env = request.scope.get('env', {})
+                db_binding = env.get('DB') if isinstance(env, dict) else getattr(env, 'DB', None)
+            # Alternative: check request.state
+            elif hasattr(request.state, 'env'):
+                db_binding = getattr(request.state.env, 'DB', None)
+        except Exception as e:
+            logger.debug(f"Could not get D1 binding from request: {e}")
+        
+        # Update database instance if we have a binding and it's different
+        if db_binding is not None:
+            from database import _db_instance
+            if _db_instance is None or not _db_instance.is_d1_available or _db_instance.db != db_binding:
+                db = init_database(db_binding)
+                # Initialize schema only once per binding
+                if not _db_instance or not _db_instance.is_d1_available:
+                    await db.init_schema()
+        
+        response = await call_next(request)
+        return response
+
+
+# Add middleware
+app.add_middleware(DatabaseMiddleware)
+
+# Include routers
+app.include_router(feed_router)
+
+
+# Initialize schema on startup (will use in-memory if D1 not available)
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database schema on application startup"""
+    db = get_database()
+    await db.init_schema()
+    logger.info("Database initialized successfully")
     
-    if not os.path.exists(cookies_file):
-        return "none"
-    
+    # Insert mock data if database is empty
     try:
-        with open(cookies_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    parts = line.split('\t')
-                    if len(parts) >= 7 and parts[5] == 'c_user':
-                        return parts[6] if len(parts) > 6 else "none"
+        comments_data = await db.get_all_raw_comments(limit=1, offset=0)
+        if comments_data.get("total", 0) == 0:
+            logger.info("Database is empty, inserting mock data...")
+            result = await db.insert_mock_data()
+            logger.info(f"Mock data inserted: {result.get('comments_inserted', 0)} comments")
     except Exception as e:
-        logger.error(f"Ошибка при чтении cookies: {e}")
-        return "none"
-    
-    return "none"
+        logger.warning(f"Could not check/insert mock data: {e}")
 
 
-def get_facebook_client() -> FacebookScraperClient:
-    """
-    Создает экземпляр FacebookScraperClient с cookies из переменной окружения или файла
-    
-    Проверяет:
-    1. Переменную окружения FACEBOOK_COOKIES_FILE (путь к файлу cookies)
-    2. Файл facebook/cookies.txt в папке facebook
-    3. Переменную окружения FACEBOOK_COOKIES (прямая строка cookies)
-    
-    Returns:
-        FacebookScraperClient с настроенными cookies (если найдены)
-    """
-    cookies_file = os.getenv("FACEBOOK_COOKIES_FILE")
-    
-    # Проверяем переменную окружения с путем к файлу
-    if cookies_file and os.path.exists(cookies_file):
-        logger.info(f"Используются cookies из файла: {cookies_file}")
-        return FacebookScraperClient(cookies=cookies_file)
-    
-    # Проверяем файл cookies.txt в папке facebook
-    if os.path.exists("facebook/cookies.txt"):
-        logger.info("Используются cookies из файла: facebook/cookies.txt")
-        return FacebookScraperClient(cookies="facebook/cookies.txt")
-    
-    # Если cookies не найдены, создаем клиент без них
-    logger.warning("Cookies не найдены. Facebook scraper может работать с ограничениями.")
-    logger.info("Для улучшения работы создайте файл facebook/cookies.txt или установите FACEBOOK_COOKIES_FILE")
-    return FacebookScraperClient()
+@app.post("/api/mock-data/insert")
+async def insert_mock_data():
+    """Insert mock comments data into the database"""
+    try:
+        db = get_database()
+        result = await db.insert_mock_data()
+        return JSONResponse(content=result)
+    except Exception as e:
+        logger.error(f"Error inserting mock data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 class ScrapedData(BaseModel):
@@ -94,75 +128,28 @@ class ScrapedData(BaseModel):
     )
 
 
-class DocumentAdd(BaseModel):
-    """Model for adding documents"""
-    texts: List[str] = Field(..., description="List of texts to add")
-    metadatas: Optional[List[Dict[str, Any]]] = Field(
-        default=None,
-        description="Optional metadata for each document"
-    )
-    ids: Optional[List[str]] = Field(
-        default=None,
-        description="Optional IDs for documents"
-    )
-
-
-class SearchQuery(BaseModel):
-    """Model for searching documents"""
-    query_text: str = Field(..., description="Search query text")
-    n_results: int = Field(default=5, ge=1, le=100, description="Number of results to return")
-    filter_metadata: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Optional metadata filter"
-    )
-
-
-class FacebookPageRequest(BaseModel):
-    """Model for Facebook page data request"""
-    page_username: str = Field(..., description="Facebook page username (e.g., 'premierbankso')")
-
-
-class HTMLParseRequest(BaseModel):
-    """Model for HTML parsing request"""
-    html_content: str = Field(..., description="HTML content containing Facebook comments")
-    limit: Optional[int] = Field(default=100, ge=1, le=1000, description="Maximum number of comments to extract")
-
-
-class URLParseRequest(BaseModel):
-    """Model for URL parsing request"""
-    url: str = Field(..., description="URL of Facebook page with comments")
-    limit: Optional[int] = Field(default=100, ge=1, le=1000, description="Maximum number of comments to extract")
-    use_browser: Optional[bool] = Field(default=False, description="Use browser rendering (Playwright) for JavaScript-heavy pages")
-    wait_time: Optional[int] = Field(default=5, ge=1, le=30, description="Wait time in seconds for page to load (only for browser mode)")
-
-
 class HuggingFaceChatRequest(BaseModel):
     """Model for Hugging Face chat request"""
     prompt: str = Field(..., description="Text prompt for the AI model")
     model: Optional[str] = Field(default=None, description="Model name (optional, uses default if not specified)")
 
 
-# Простое хранилище в памяти (для демонстрации)
-in_memory_storage: Dict[str, Dict[str, Any]] = {}
+class GeminiChatRequest(BaseModel):
+    """Model for Gemini chat request"""
+    prompt: str = Field(..., description="Text prompt for the AI model")
+    model: Optional[str] = Field(default=None, description="Model name (optional, uses default if not specified)")
 
-# Хранилище результатов скраппинга Facebook
-facebook_scraping_results: Dict[str, Dict[str, Any]] = {}
 
-# Хранилище статусов выполнения скраппинга
-scraping_status: Dict[str, Dict[str, Any]] = {}
+# Database will be initialized on startup
+# Access via get_database() function
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
     """Main page with service information"""
-    storage_count = len(in_memory_storage)
-    c_user = get_c_user_from_cookies()
-    # Получаем последний результат скраппинга
-    last_scraping_result = None
-    if facebook_scraping_results:
-        # Берем последний результат
-        last_key = max(facebook_scraping_results.keys(), key=lambda k: facebook_scraping_results[k].get('fetched_at', ''))
-        last_scraping_result = facebook_scraping_results[last_key]
+    db = get_database()
+    # Get latest scraping result
+    last_scraping_result = await db.get_latest_scraping_result()
     
     html_content = """
     <!DOCTYPE html>
@@ -484,9 +471,35 @@ async def root():
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
+            .navbar {
+                background: white;
+                padding: 15px 0;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #e5e7eb;
+            }
+            .nav-links {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+            }
+            .nav-link {
+                color: #667eea;
+                text-decoration: none;
+                font-weight: 500;
+                padding: 8px 16px;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+            .nav-link:hover {
+                background: #f8f9fa;
+            }
+            .nav-link.active {
+                background: #667eea;
+                color: white;
+            }
         </style>
         <script>
-            // Безопасное форматирование даты (определяем глобально)
+            // Безопасное форматирование даты
             function formatDate(dateValue) {
                 if (!dateValue) return 'Дата не указана';
                 try {
@@ -496,55 +509,6 @@ async def root():
                 } catch (e) {
                     console.error('Ошибка форматирования даты:', e, dateValue);
                     return 'Ошибка даты';
-                }
-            }
-            
-            async function scrapeFacebook() {
-                const username = document.getElementById('fb-username').value.trim();
-                const button = document.getElementById('scrape-btn');
-                const loading = document.getElementById('loading');
-                const resultContainer = document.getElementById('result-container');
-                
-                if (!username) {
-                    alert('Пожалуйста, введите username страницы Facebook');
-                    return;
-                }
-                
-                // Показываем загрузку
-                button.disabled = true;
-                loading.classList.add('show');
-                resultContainer.classList.remove('show');
-                
-                try {
-                    const response = await fetch('/facebook/scrape', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ page_username: username })
-                    });
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('HTTP Error:', response.status, errorText);
-                        showError(`Ошибка сервера (${response.status}): ${errorText}`);
-                        return;
-                    }
-                    
-                    const data = await response.json();
-                    console.log('Response data:', data);
-                    
-                    if (data.success) {
-                        displayResult(data.data);
-                    } else {
-                        showError(data.error || 'Произошла ошибка при скраппинге');
-                    }
-                } catch (error) {
-                    console.error('Request error:', error);
-                    showError('Ошибка соединения: ' + error.message);
-                } finally {
-                    button.disabled = false;
-                    loading.classList.remove('show');
                 }
             }
             
@@ -709,14 +673,14 @@ async def root():
                 
                 let html = `
                     <div class="result-header">
-                        <h3>🤖 Ответ от AI</h3>
+                        <h3>🤖 Response from HF Model</h3>
                     </div>
                     <div style="margin-bottom: 15px;">
                         <strong style="color: #667eea;">Ваш запрос:</strong>
                         <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap;">${escapeHtml(prompt)}</div>
                     </div>
                     <div>
-                        <strong style="color: #667eea;">Ответ:</strong>
+                        <strong style="color: #667eea;">Response:</strong>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(response)}</div>
                     </div>
                 `;
@@ -737,62 +701,117 @@ async def root():
                 container.classList.add('show', 'error');
             }
             
-            // Обработка Enter в поле ввода
-            document.addEventListener('DOMContentLoaded', function() {
-                const input = document.getElementById('fb-username');
-                if (input) {
-                    input.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            scrapeFacebook();
-                        }
-                    });
+            async function chatGemini() {
+                const prompt = document.getElementById('gemini-prompt').value.trim();
+                const button = document.getElementById('gemini-chat-btn');
+                const loading = document.getElementById('gemini-loading');
+                const resultContainer = document.getElementById('gemini-result-container');
+                
+                if (!prompt) {
+                    alert('Please enter a prompt');
+                    return;
                 }
-            });
+                
+                // Показываем загрузку
+                button.disabled = true;
+                loading.classList.add('show');
+                resultContainer.classList.remove('show');
+                
+                try {
+                    const response = await fetch('/gemini/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ prompt: prompt })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('HTTP Error:', response.status, errorText);
+                        showGeminiError(`Ошибка сервера (${response.status}): ${errorText}`);
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    
+                    if (data.success) {
+                        displayGeminiResult(data.response, prompt);
+                    } else {
+                        showGeminiError(data.error || 'Произошла ошибка при обработке запроса');
+                    }
+                } catch (error) {
+                    console.error('Request error:', error);
+                    showGeminiError('Ошибка соединения: ' + error.message);
+                } finally {
+                    button.disabled = false;
+                    loading.classList.remove('show');
+                }
+            }
+            
+            function displayGeminiResult(response, prompt) {
+                const container = document.getElementById('gemini-result-container');
+                
+                let html = `
+                    <div class="result-header">
+                        <h3>🤖 Response from Gemini</h3>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: #667eea;">Ваш запрос:</strong>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap;">${escapeHtml(prompt)}</div>
+                    </div>
+                    <div>
+                        <strong style="color: #667eea;">Response:</strong>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(response)}</div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                container.classList.add('show');
+                container.classList.remove('error');
+            }
+            
+            function showGeminiError(message) {
+                const container = document.getElementById('gemini-result-container');
+                container.innerHTML = `
+                    <div class="result-header">
+                        <h3 style="color: #ef4444;">❌ Ошибка</h3>
+                    </div>
+                    <p style="color: #ef4444;">${escapeHtml(message)}</p>
+                `;
+                container.classList.add('show', 'error');
+            }
+            
         </script>
     </head>
     <body>
         <div class="container">
-            <h1>🚀 Gaado Backend API</h1>
-            <p class="subtitle">FastAPI Application for Processing Scraped Data</p>
-            <div style="text-align: center;">
-                <span class="status">● Online</span>
-            </div>
+            <nav class="navbar">
+                <div class="nav-links">
+                    <a href="/" class="nav-link active">Home</a>
+                    <a href="/feed" class="nav-link">Feed</a>
+                </div>
+            </nav>
             
-            <div class="info-grid">
-                <div class="info-card">
-                    <h3>Version</h3>
-                    <p>1.0.0</p>
-                </div>
-                <div class="info-card">
-                    <h3>Mode</h3>
-                    <p>Simplified</p>
-                </div>
-                <div class="info-card">
-                    <h3>Storage</h3>
-                    <p>""" + str(storage_count) + """ docs</p>
-                </div>
-                <div class="info-card">
-                    <h3>Cookies</h3>
-                    <p>""" + (c_user if c_user != "none" else "none") + """</p>
-                </div>
-            </div>
+            <h1>🚀 Gaado Backend API</h1>
+            
             
             <div class="scraper-section">
-                <h2>📱 Facebook Scraper</h2>
+                <h2>✨ Google Gemini Chat</h2>
+                <p style="color: #666; font-size: 0.85em; margin-top: -10px; margin-bottom: 20px; font-style: italic;">translate this from somali to english</p>
                 <div class="scraper-form">
-                    <input 
-                        type="text" 
-                        id="fb-username" 
-                        placeholder="Введите username страницы (например: premierbankso)" 
-                        value="premierbankso"
-                    />
-                    <button id="scrape-btn" onclick="scrapeFacebook()">Скрапить</button>
+                    <textarea 
+                        id="gemini-prompt" 
+                        placeholder="Input your prompt here..."
+                    >Waa bankiga kaliya ee dadkiisa cilada heesato ku xaliyo ka wada bax dib usoo bilaaw tirtir ee dib usoo daji</textarea>
+                    <button id="gemini-chat-btn" onclick="chatGemini()">Отправить</button>
                 </div>
-                <div id="loading" class="loading">
+                <div id="gemini-loading" class="loading">
                     <div class="spinner"></div>
-                    <p>Загрузка данных...</p>
+                    <p>Обработка запроса...</p>
                 </div>
-                <div id="result-container" class="result-container"></div>
+                <div id="gemini-result-container" class="result-container"></div>
             </div>
             
             <div class="scraper-section">
@@ -811,51 +830,6 @@ async def root():
                 <div id="hf-result-container" class="result-container"></div>
             </div>
             
-            <div class="links">
-                <a href="/docs" class="link">📚 API Documentation</a>
-                <a href="/redoc" class="link secondary">📖 ReDoc</a>
-                <a href="/health" class="link secondary">❤️ Health Check</a>
-            </div>
-            
-            <div class="endpoints">
-                <h2>Quick API Endpoints</h2>
-                <div class="endpoint">
-                    <span class="method get">GET</span> /health - Health check endpoint
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /huggingface/chat - Chat with Hugging Face AI
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /storage/add - Add documents to storage
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /storage/search - Search documents
-                </div>
-                <div class="endpoint">
-                    <span class="method get">GET</span> /storage/list - List all documents
-                </div>
-                <div class="endpoint">
-                    <span class="method delete">DELETE</span> /storage/delete - Delete documents
-                </div>
-                <div class="endpoint">
-                    <span class="method get">GET</span> /facebook/page/{username} - Get Facebook page post data
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /facebook/page - Get Facebook page data (POST)
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /facebook/scrape - Scrape Facebook page
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /facebook/test - Test Facebook scraper
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /facebook/parse-html - Parse comments from HTML
-                </div>
-                <div class="endpoint">
-                    <span class="method post">POST</span> /facebook/parse-url - Fetch and parse comments from URL
-                </div>
-            </div>
         </div>
     </body>
     </html>
@@ -863,589 +837,29 @@ async def root():
     return HTMLResponse(content=html_content)
 
 
-@app.get("/health")
-async def health():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "storage_count": len(in_memory_storage)
-    }
-
-
-
-
-@app.post("/storage/add")
-async def add_documents(documents: DocumentAdd):
-    """
-    Add documents to in-memory storage
-    
-    Args:
-        documents: Documents to add with optional metadata and IDs
-        
-    Returns:
-        List of document IDs
-    """
-    import uuid
-    
-    ids = []
-    for i, text in enumerate(documents.texts):
-        doc_id = documents.ids[i] if documents.ids and i < len(documents.ids) else str(uuid.uuid4())
-        metadata = documents.metadatas[i] if documents.metadatas and i < len(documents.metadatas) else {}
-        
-        in_memory_storage[doc_id] = {
-            "text": text,
-            "metadata": metadata,
-            "created_at": datetime.now().isoformat()
-        }
-        ids.append(doc_id)
-    
-    return {
-        "success": True,
-        "ids": ids,
-        "count": len(ids)
-    }
-
-
-@app.post("/storage/search")
-async def search_documents(query: SearchQuery):
-    """
-    Search for documents in in-memory storage (simple text matching)
-    
-    Args:
-        query: Search query with text and optional filters
-        
-    Returns:
-        Search results with matching documents
-    """
-    results = []
-    query_lower = query.query_text.lower()
-    
-    for doc_id, doc_data in in_memory_storage.items():
-        # Простой поиск по тексту
-        text_lower = doc_data["text"].lower()
-        
-        # Проверка фильтров метаданных
-        if query.filter_metadata:
-            matches_filter = all(
-                doc_data.get("metadata", {}).get(key) == value
-                for key, value in query.filter_metadata.items()
-            )
-            if not matches_filter:
-                continue
-        
-        # Простой поиск по вхождению текста
-        if query_lower in text_lower:
-            results.append({
-                "id": doc_id,
-                "text": doc_data["text"],
-                "metadata": doc_data.get("metadata", {}),
-                "created_at": doc_data.get("created_at"),
-                "match_score": text_lower.count(query_lower)  # Простой счетчик совпадений
-            })
-    
-    # Сортировка по количеству совпадений и ограничение результатов
-    results.sort(key=lambda x: x["match_score"], reverse=True)
-    results = results[:query.n_results]
-    
-    return {
-        "query": query.query_text,
-        "results": results,
-        "count": len(results)
-    }
-
-
-@app.get("/storage/info")
-async def get_storage_info():
-    """
-    Get information about in-memory storage
-    
-    Returns:
-        Storage information
-    """
-    return {
-        "storage_type": "in-memory",
-        "document_count": len(in_memory_storage),
-        "total_chars": sum(len(doc["text"]) for doc in in_memory_storage.values()),
-        "created_at": datetime.now().isoformat()
-    }
-
-
-@app.delete("/storage/delete")
-async def delete_documents(ids: List[str]):
-    """
-    Delete documents from storage by IDs
-    
-    Args:
-        ids: List of document IDs to delete
-        
-    Returns:
-        Success status
-    """
-    deleted_count = 0
-    for doc_id in ids:
-        if doc_id in in_memory_storage:
-            del in_memory_storage[doc_id]
-            deleted_count += 1
-    
-    return {
-        "success": True,
-        "deleted_ids": ids,
-        "deleted_count": deleted_count,
-        "requested_count": len(ids)
-    }
-
-
-@app.get("/storage/list")
-async def list_documents(limit: int = 10, offset: int = 0):
-    """
-    List all documents in storage
-    
-    Args:
-        limit: Maximum number of documents to return
-        offset: Number of documents to skip
-        
-    Returns:
-        List of documents
-    """
-    items = list(in_memory_storage.items())[offset:offset + limit]
-    return {
-        "documents": [
-            {
-                "id": doc_id,
-                "text": doc_data["text"][:100] + "..." if len(doc_data["text"]) > 100 else doc_data["text"],
-                "metadata": doc_data.get("metadata", {}),
-                "created_at": doc_data.get("created_at")
-            }
-            for doc_id, doc_data in items
-        ],
-        "total": len(in_memory_storage),
-        "limit": limit,
-        "offset": offset
-    }
-
-
-@app.get("/facebook/page/{page_username}")
-async def get_facebook_page_data(page_username: str):
-    """
-    Получить данные последнего поста со страницы Facebook
-    
-    Использует facebook-scraper для получения данных без необходимости в Access Token.
-    Работает только с публичными страницами.
-    
-    Возвращает:
-    - Информацию о странице
-    - Последний пост
-    - Реакции к посту (разбитые по типам: LIKE, LOVE, WOW, HAHA, SORRY, ANGER)
-    - Все комментарии к посту
-    
-    Args:
-        page_username: Username страницы Facebook (например, 'premierbankso')
-    """
+@app.get("/api/feed")
+async def get_feed(limit: int = Query(default=50, ge=1, le=200), offset: int = Query(default=0, ge=0)):
+    """Get feed of comments from database with pagination"""
     try:
-        client = get_facebook_client()
-        data = await client.get_page_post_data(page_username)
-        return {
-            "success": True,
-            "data": data
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        db = get_database()
+        result = await db.get_all_raw_comments(limit=limit, offset=offset)
+        return result
     except Exception as e:
-        logger.error(f"Ошибка при получении данных Facebook: {e}")
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка: {str(e)}")
+        logger.error(f"Error getting feed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error getting feed: {str(e)}")
 
-
-@app.post("/facebook/page")
-async def get_facebook_page_data_post(request: FacebookPageRequest):
-    """
-    Получить данные последнего поста со страницы Facebook (POST метод)
-    
-    Использует facebook-scraper для получения данных без необходимости в Access Token.
-    Работает только с публичными страницами.
-    
-    Возвращает:
-    - Информацию о странице
-    - Последний пост
-    - Реакции к посту (разбитые по типам)
-    - Все комментарии к посту
-    
-    Args:
-        request: Запрос с username страницы
-    """
-    try:
-        client = get_facebook_client()
-        data = await client.get_page_post_data(request.page_username)
-        return {
-            "success": True,
-            "data": data
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Ошибка при получении данных Facebook: {e}")
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка: {str(e)}")
-
-
-@app.get("/facebook/page/{page_username}/info")
-async def get_facebook_page_info(page_username: str):
-    """
-    Получить базовую информацию о странице Facebook
-    
-    Использует facebook-scraper для получения данных без необходимости в Access Token.
-    
-    Args:
-        page_username: Username страницы Facebook
-    """
-    try:
-        client = get_facebook_client()
-        page_info = await client.get_page_info(page_username)
-        return {
-            "success": True,
-            "page_info": page_info
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Ошибка при получении информации о странице: {e}")
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка: {str(e)}")
-
-
-@app.post("/facebook/scrape")
-async def scrape_facebook_page(request: FacebookPageRequest):
-    """
-    Эндпоинт для скраппинга Facebook страницы с главной страницы
-    
-    Использует facebook-scraper для получения данных без необходимости в Access Token.
-    Сохраняет результат в памяти для отображения на главной странице.
-    
-    Args:
-        request: Запрос с username страницы
-    """
-    import uuid
-    
-    try:
-        client = get_facebook_client()
-        data = await client.get_page_post_data(request.page_username)
-        
-        # Сохраняем результат в памяти
-        result_id = str(uuid.uuid4())
-        facebook_scraping_results[result_id] = {
-            **data,
-            "page_username": request.page_username,
-            "fetched_at": datetime.now().isoformat()
-        }
-        
-        return {
-            "success": True,
-            "data": data,
-            "result_id": result_id
-        }
-    except ValueError as e:
-        logger.error(f"Ошибка валидации при скраппинге: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
-    except Exception as e:
-        logger.error(f"Ошибка при скраппинге Facebook: {e}")
-        return {
-            "success": False,
-            "error": f"Внутренняя ошибка: {str(e)}"
-        }
-
-
-@app.get("/facebook/test-simple/{page_username}")
-async def test_facebook_scraper_simple(page_username: str):
-    """
-    ПРОСТОЙ тестовый эндпоинт для проверки базового подключения к Facebook
-    Только получение постов, без дополнительных данных
-    """
-    try:
-        logger.info(f"=== ТЕСТ: Простая проверка подключения для {page_username} ===")
-        client = get_facebook_client()
-        
-        # ПРОСТОЙ ТЕСТ - только получение постов
-        logger.info("Шаг 1: Получаем посты...")
-        posts = await client._get_posts_async(page_username, pages=1)
-        
-        if not posts:
-            return {
-                "success": False,
-                "error": "Посты не найдены",
-                "message": f"Страница {page_username} не вернула посты. Проверьте правильность username."
-            }
-        
-        # Возвращаем только первый пост для проверки
-        first_post = posts[0]
-        return {
-            "success": True,
-            "message": f"✅ Подключение работает! Найдено {len(posts)} постов",
-            "post_count": len(posts),
-            "first_post": {
-                "post_id": first_post.get("post_id", "N/A"),
-                "text_preview": (first_post.get("text", "") or first_post.get("post_text", ""))[:100],
-                "has_text": bool(first_post.get("text") or first_post.get("post_text")),
-                "keys": list(first_post.keys())
-            }
-        }
-    except AssertionError as e:
-        logger.error(f"AssertionError: {e}")
-        return {
-            "success": False,
-            "error": "AssertionError",
-            "message": f"Не удалось извлечь посты. Возможные причины: страница недоступна, приватная или требует авторизации. Ошибка: {str(e)}",
-            "details": str(e)
-        }
-    except Exception as e:
-        logger.error(f"Ошибка при тестировании: {type(e).__name__}: {e}", exc_info=True)
-        import traceback
-        return {
-            "success": False,
-            "error": type(e).__name__,
-            "message": str(e),
-            "traceback": traceback.format_exc()
-        }
-
-
-@app.post("/facebook/parse-html")
-async def parse_comments_from_html(request: HTMLParseRequest):
-    """
-    Парсинг комментариев напрямую из HTML-структуры Facebook
-    
-    Этот эндпоинт позволяет извлечь комментарии из HTML-кода страницы Facebook,
-    когда стандартный скраппер не работает из-за изменений в структуре Facebook.
-    
-    Args:
-        request: Запрос с HTML-контентом и опциональным лимитом комментариев
-        
-    Returns:
-        Список извлеченных комментариев с авторами, текстом, временем и лайками
-    """
-    try:
-        client = get_facebook_client()
-        result = client.parse_comments_from_html(request.html_content, limit=request.limit)
-        
-        return {
-            "success": True,
-            "data": result,
-            "parsed_at": datetime.now().isoformat()
-        }
-    except ImportError as e:
-        logger.error(f"Ошибка импорта: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"BeautifulSoup не установлен. Установите: pip install beautifulsoup4"
-        )
-    except Exception as e:
-        logger.error(f"Ошибка при парсинге HTML: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Ошибка при парсинге HTML: {str(e)}"
-        )
-
-
-@app.post("/facebook/parse-url")
-async def fetch_and_parse_comments_from_url(request: URLParseRequest):
-    """
-    Загрузить HTML со страницы Facebook и распарсить комментарии
-    
-    Этот эндпоинт загружает HTML со страницы Facebook по URL и извлекает комментарии.
-    Использует cookies из файла (если доступны) для доступа к странице.
-    
-    Если use_browser=True, использует Playwright для рендеринга JavaScript,
-    что позволяет извлекать комментарии, загружаемые динамически.
-    
-    Результаты автоматически сохраняются в памяти и могут быть получены через /facebook/results/{result_id}
-    
-    Args:
-        request: Запрос с URL страницы и опциональными параметрами
-        
-    Returns:
-        Результат с данными, статусом выполнения и ID для отслеживания
-    """
-    import uuid
-    
-    try:
-        result_id = str(uuid.uuid4())
-        
-        # Сохраняем статус начала
-        scraping_status[result_id] = {
-            "status": "started",
-            "url": request.url,
-            "started_at": datetime.now().isoformat(),
-            "method": "browser" if request.use_browser else "http"
-        }
-        
-        client = get_facebook_client()
-        
-        if request.use_browser:
-            logger.info(f"Используем браузер для рендеринга JavaScript")
-            result = await client.fetch_and_parse_comments_with_browser(
-                request.url, 
-                limit=request.limit,
-                wait_time=request.wait_time
-            )
-        else:
-            logger.info(f"Используем простой HTTP запрос")
-            result = await client.fetch_and_parse_comments_from_url(request.url, limit=request.limit)
-        
-        # Обновляем статус
-        scraping_status[result_id] = {
-            "status": result.get("status", "completed"),
-            "url": request.url,
-            "started_at": result.get("started_at"),
-            "completed_at": result.get("fetched_at"),
-            "duration_seconds": result.get("duration_seconds"),
-            "comments_count": result.get("total_count", 0),
-            "method": "browser" if request.use_browser else "http",
-            "success": result.get("success", True)
-        }
-        
-        # Сохраняем результаты
-        facebook_scraping_results[result_id] = {
-            **result,
-            "result_id": result_id,
-            "saved_at": datetime.now().isoformat()
-        }
-        
-        return {
-            "success": True,
-            "data": result,
-            "result_id": result_id,
-            "status": result.get("status", "completed"),
-            "message": f"Скрапинг завершен. Найдено {result.get('total_count', 0)} комментариев.",
-            "saved": True
-        }
-    except ImportError as e:
-        logger.error(f"Ошибка импорта: {e}")
-        error_msg = "Необходимые библиотеки не установлены."
-        if request.use_browser:
-            error_msg += " Для браузера установите: pip install playwright && playwright install chromium"
-        else:
-            error_msg += " Установите: pip install httpx beautifulsoup4"
-        raise HTTPException(
-            status_code=500,
-            detail=error_msg
-        )
-    except ValueError as e:
-        logger.error(f"Ошибка валидации: {e}")
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-    except Exception as e:
-        logger.error(f"Ошибка при загрузке и парсинге URL: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Ошибка при обработке URL: {str(e)}"
-        )
-
-
-@app.get("/facebook/results/{result_id}")
-async def get_scraping_result(result_id: str):
-    """
-    Получить результат скрапинга по ID
-    
-    Args:
-        result_id: ID результата скрапинга
-        
-    Returns:
-        Результат скрапинга с комментариями и метаданными
-    """
-    if result_id not in facebook_scraping_results:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Результат с ID {result_id} не найден"
-        )
-    
-    result = facebook_scraping_results[result_id]
-    status_info = scraping_status.get(result_id, {})
-    
-    return {
-        "success": True,
-        "result_id": result_id,
-        "status": status_info.get("status", "unknown"),
-        "data": result,
-        "status_info": status_info
-    }
-
-
-@app.get("/facebook/status/{result_id}")
-async def get_scraping_status(result_id: str):
-    """
-    Получить статус выполнения скрапинга
-    
-    Args:
-        result_id: ID результата скрапинга
-        
-    Returns:
-        Статус выполнения скрапинга
-    """
-    if result_id not in scraping_status:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Статус для ID {result_id} не найден"
-        )
-    
-    status_info = scraping_status[result_id]
-    
-    # Проверяем, есть ли результаты
-    has_results = result_id in facebook_scraping_results
-    
-    return {
-        "result_id": result_id,
-        "status": status_info.get("status", "unknown"),
-        "url": status_info.get("url"),
-        "started_at": status_info.get("started_at"),
-        "completed_at": status_info.get("completed_at"),
-        "duration_seconds": status_info.get("duration_seconds"),
-        "comments_count": status_info.get("comments_count", 0),
-        "has_results": has_results,
-        "success": status_info.get("success", False)
-    }
-
-
-@app.get("/facebook/results")
-async def list_scraping_results(limit: int = 10):
-    """
-    Получить список последних результатов скрапинга
-    
-    Args:
-        limit: Максимальное количество результатов
-        
-    Returns:
-        Список результатов скрапинга
-    """
-    results = []
-    for result_id, result_data in list(facebook_scraping_results.items())[-limit:]:
-        status_info = scraping_status.get(result_id, {})
-        results.append({
-            "result_id": result_id,
-            "url": result_data.get("url"),
-            "status": status_info.get("status", "unknown"),
-            "comments_count": result_data.get("total_count", 0),
-            "fetched_at": result_data.get("fetched_at"),
-            "duration_seconds": result_data.get("duration_seconds")
-        })
-    
-    return {
-        "success": True,
-        "total": len(facebook_scraping_results),
-        "results": results
-    }
 
 
 @app.post("/huggingface/chat")
 async def chat_with_huggingface(request: HuggingFaceChatRequest):
     """
-    Эндпоинт для чата с Hugging Face моделью
+    Endpoint for chatting with Hugging Face model
     
     Args:
-        request: Запрос с текстом промпта и опциональной моделью
+        request: Request with prompt text and optional model name
         
     Returns:
-        Ответ от AI модели
+        Response from AI model
     """
     try:
         client = HuggingFaceClient()
@@ -1453,7 +867,7 @@ async def chat_with_huggingface(request: HuggingFaceChatRequest):
         if not client.is_available():
             return {
                 "success": False,
-                "error": "HuggingFace клиент не доступен. Проверьте HF_API_KEY."
+                "error": "HuggingFace client is not available. Check HF_API_KEY."
             }
         
         response = client.simple_chat(
@@ -1467,87 +881,53 @@ async def chat_with_huggingface(request: HuggingFaceChatRequest):
             "model": request.model or client.default_model
         }
     except Exception as e:
-        logger.error(f"Ошибка при обработке запроса Hugging Face: {e}")
+        logger.error(f"Error processing Hugging Face request: {e}")
         return {
             "success": False,
-            "error": f"Внутренняя ошибка: {str(e)}"
+            "error": f"Internal error: {str(e)}"
         }
 
 
-@app.post("/facebook/test")
-async def test_facebook_scraper(request: FacebookPageRequest):
+@app.post("/gemini/chat")
+async def chat_with_gemini(request: GeminiChatRequest):
     """
-    Тестовый эндпоинт для проверки работы Facebook Scraper
-    
-    Выполняет полное тестирование всех функций скраппера:
-    - Получение информации о странице
-    - Получение последнего поста
-    - Получение реакций
-    - Получение комментариев
+    Endpoint for chatting with Gemini model
     
     Args:
-        request: Запрос с username страницы для тестирования
+        request: Request with prompt text and optional model name
+        
+    Returns:
+        Response from AI model
     """
-    test_username = request.page_username
-    
     try:
-        # Инициализация клиента
-        client = get_facebook_client()
+        # Get API key from environment variable
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
         
-        # Получение информации о странице
-        page_info = await client.get_page_info(test_username)
+        # Create client with API key
+        client = GeminiClient(api_key=gemini_api_key)
         
-        # Получение последнего поста
-        latest_post = await client.get_latest_post(test_username)
-        
-        if not latest_post:
+        if not client.is_available():
             return {
                 "success": False,
-                "error": "На странице нет постов или страница недоступна",
-                "page_info": page_info
+                "error": "Gemini client is not available. Check GEMINI_API_KEY."
             }
         
-        # Получение реакций
-        reactions = await client.get_post_reactions(latest_post)
-        
-        # Получение комментариев
-        comments = await client.get_post_comments(latest_post)
+        # Process user request - all logic is encapsulated in the client
+        response = client.process_user_request(
+            user_prompt=request.prompt,
+            model=request.model
+        )
         
         return {
             "success": True,
-            "test_results": {
-                "page_info": page_info,
-                "latest_post": {
-                    "post_id": latest_post.get("post_id"),
-                    "text_preview": latest_post.get("text", "")[:100] + "..." if len(latest_post.get("text", "")) > 100 else latest_post.get("text", ""),
-                    "likes": latest_post.get("likes", 0),
-                    "comments": latest_post.get("comments", 0),
-                    "shares": latest_post.get("shares", 0)
-                },
-                "reactions": {
-                    "total_reactions": reactions.get("total_reactions", 0),
-                    "reactions_by_type": reactions.get("reactions_by_type", {})
-                },
-                "comments": {
-                    "total_count": comments.get("total_count", 0),
-                    "sample_comments": comments.get("comments", [])[:3]  # Первые 3 комментария
-                }
-            },
-            "message": "Все тесты пройдены успешно!"
-        }
-    except ImportError as e:
-        logger.error(f"Ошибка импорта: {e}")
-        return {
-            "success": False,
-            "error": f"Ошибка импорта: {e}. Установите библиотеку: pip install facebook-scraper"
+            "response": response,
+            "model": request.model or client.default_model
         }
     except Exception as e:
-        logger.error(f"Ошибка при тестировании: {e}")
-        import traceback
+        logger.error(f"Error processing Gemini request: {e}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "error": f"Internal error: {str(e)}"
         }
 
 
