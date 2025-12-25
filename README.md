@@ -10,13 +10,6 @@ gaado_backend/
 ├── requirements.txt                 # Full Python dependencies
 ├── requirements_simple.txt          # Minimal dependencies (no HF/ChromaDB)
 ├── README.md                        # This file
-├── facebook/                        # Facebook scraping module
-│   ├── facebook_client.py           # Facebook Graph API client
-│   ├── cookies.txt                  # Facebook cookies (optional)
-│   ├── get_facebook_cookies.py      # Cookie extraction script
-│   ├── FACEBOOK_SETUP.md            # Facebook setup guide
-│   ├── COOKIES_SETUP.md             # Cookies setup guide
-│   └── test_*.py                     # Facebook test scripts
 ├── chromadb/                        # ChromaDB module
 │   ├── chroma_client.py             # ChromaDB client (optional)
 │   └── CHROMADB_SETUP.md            # ChromaDB setup guide
@@ -25,29 +18,11 @@ gaado_backend/
 ├── cloudflare/                      # Cloudflare Workers module
 │   ├── wrangler.toml                # Cloudflare Workers configuration
 │   └── CLOUDFLARE_WORKERS_SETUP.md  # Cloudflare Workers setup guide
-└── playwright/                      # Playwright browser automation
-    ├── test_browser_parsing.py      # Browser parsing tests
+└── playwright_docs/                 # Playwright documentation
     └── BROWSER_PARSING_SETUP.md     # Browser setup guide
 ```
 
 ## Features
-
-### Text Processing
-- **POST /process** - Process text data with basic analysis (word count, character count, etc.)
-- **POST /storage/add** - Add documents to in-memory storage
-- **POST /storage/search** - Search documents in storage
-- **GET /storage/info** - Get storage information
-- **GET /storage/list** - List all documents
-- **DELETE /storage/delete** - Delete documents by IDs
-
-### Facebook Scraper API
-- **GET /facebook/page/{username}** - Get latest post data from Facebook page (with reactions and comments)
-- **POST /facebook/page** - Get Facebook page data (POST method)
-- **GET /facebook/page/{username}/info** - Get basic page information
-- **POST /facebook/scrape** - Scrape Facebook page (for web interface)
-- **POST /facebook/test** - Test Facebook scraper functionality
-
-See [facebook/FACEBOOK_SETUP.md](facebook/FACEBOOK_SETUP.md) for detailed setup instructions.
 
 ### System Endpoints
 - **GET /health** - Health check endpoint
@@ -57,9 +32,18 @@ See [facebook/FACEBOOK_SETUP.md](facebook/FACEBOOK_SETUP.md) for detailed setup 
 
 ### Local Development
 
+#### Вариант 1: Автоматический запуск (рекомендуется)
+
+```bash
+# Просто запустите скрипт - он сам создаст venv, установит зависимости и запустит сервер
+./start_server.sh
+```
+
+#### Вариант 2: Ручная установка
+
 1. Create a virtual environment:
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
@@ -74,8 +58,14 @@ pip install -r requirements.txt
 
 3. Run the server:
 ```bash
+# Используйте Python из виртуального окружения!
+./venv/bin/python -m uvicorn main:app --reload
+
+# Или если venv активирован:
 uvicorn main:app --reload
 ```
+
+**⚠️ ВАЖНО:** Всегда запускайте сервер из виртуального окружения! Не используйте системный Python.
 
 The application will be available at: http://localhost:8000
 
@@ -152,83 +142,6 @@ wrangler tail
 ```
 
 **Complete setup guide:** See [cloudflare/CLOUDFLARE_WORKERS_SETUP.md](cloudflare/CLOUDFLARE_WORKERS_SETUP.md)
-
-## API Usage
-
-### Process Text
-
-```bash
-curl -X POST "http://localhost:8000/process" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Hello, this is a test message!",
-    "metadata": {
-      "source": "example.com",
-      "timestamp": "2024-01-01T00:00:00Z"
-    }
-  }'
-```
-
-With storage:
-```bash
-curl -X POST "http://localhost:8000/process?save_to_storage=true" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Hello, this is a test message!",
-    "metadata": {"source": "example.com"}
-  }'
-```
-
-### Add Documents to Storage
-
-```bash
-curl -X POST "http://localhost:8000/storage/add" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "texts": [
-      "This is a sample document about AI",
-      "Another document about machine learning"
-    ],
-    "metadatas": [
-      {"source": "doc1", "category": "AI"},
-      {"source": "doc2", "category": "ML"}
-    ]
-  }'
-```
-
-### Search Documents
-
-```bash
-curl -X POST "http://localhost:8000/storage/search" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query_text": "artificial intelligence",
-    "n_results": 5
-  }'
-```
-
-### Example Response
-
-```json
-{
-  "success": true,
-  "input_text": "Hello, this is a test message!",
-  "metadata": {
-    "source": "example.com",
-    "timestamp": "2024-01-01T00:00:00Z"
-  },
-  "analysis": {
-    "text_length": 30,
-    "word_count": 6,
-    "char_count": 30,
-    "uppercase_count": 1,
-    "digit_count": 0
-  },
-  "processed_at": "2024-01-01T00:00:00",
-  "storage_id": "uuid-here",
-  "saved_to_storage": true
-}
-```
 
 ## Environment Variables
 

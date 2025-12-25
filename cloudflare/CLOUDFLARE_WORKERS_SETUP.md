@@ -85,7 +85,24 @@ python-dotenv==1.0.0
 **Important Notes:**
 - Some packages may not be compatible with Cloudflare Workers
 - ChromaDB and sentence-transformers require external services (ChromaDB Cloud)
+- **Playwright НЕ РАБОТАЕТ на Cloudflare Workers** - используйте внешний Playwright сервис (см. раздел ниже)
 - Test your dependencies locally before deploying
+
+### 3. Playwright на Cloudflare Workers
+
+**⚠️ ВАЖНО:** Playwright не может работать напрямую на Cloudflare Workers из-за ограничений среды выполнения.
+
+**Решение:** Используйте внешний Playwright сервис:
+
+1. **Разверните Playwright Worker на отдельном сервере** (VPS, Railway, Render и т.д.)
+2. **Настройте переменную окружения:**
+   ```bash
+   wrangler secret put PLAYWRIGHT_SERVICE_URL
+   # Введите URL вашего Playwright сервиса, например: https://playwright-worker.example.com
+   ```
+3. **Код автоматически будет использовать внешний сервис** если `PLAYWRIGHT_SERVICE_URL` установлен
+
+Подробнее см. [PLAYWRIGHT_SETUP_RU.md](../PLAYWRIGHT_SETUP_RU.md)
 
 ## Code Compatibility
 
