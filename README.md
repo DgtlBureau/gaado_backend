@@ -13,8 +13,6 @@ gaado_backend/
 ├── chromadb/                        # ChromaDB module
 │   ├── chroma_client.py             # ChromaDB client (optional)
 │   └── CHROMADB_SETUP.md            # ChromaDB setup guide
-├── huggingface/                     # HuggingFace module
-│   └── HUGGINGFACE_SETUP.md         # Hugging Face setup (optional)
 ├── cloudflare/                      # Cloudflare Workers module
 │   ├── wrangler.toml                # Cloudflare Workers configuration
 │   └── CLOUDFLARE_WORKERS_SETUP.md  # Cloudflare Workers setup guide
@@ -52,7 +50,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # For simplified version (no external services)
 pip install -r requirements_simple.txt
 
-# Or for full version (with HuggingFace/ChromaDB)
+# Or for full version (with ChromaDB)
 pip install -r requirements.txt
 ```
 
@@ -103,9 +101,6 @@ wrangler login
 **Required secrets (if using external services):**
 
 ```bash
-# Hugging Face token (if using HuggingFace API)
-wrangler secret put HUGGINGFACE_API_TOKEN
-
 # ChromaDB (if using ChromaDB Cloud)
 wrangler secret put CHROMA_API_URL
 wrangler secret put CHROMA_API_KEY
@@ -113,7 +108,6 @@ wrangler secret put CHROMA_API_KEY
 
 **Optional secrets:**
 ```bash
-wrangler secret put HUGGINGFACE_MODEL
 wrangler secret put CHROMA_COLLECTION_NAME
 wrangler secret put EMBEDDING_MODEL
 ```
@@ -147,11 +141,6 @@ wrangler tail
 
 ### Optional (for external services)
 
-**Hugging Face:**
-- `HUGGINGFACE_API_TOKEN` - Token for accessing Hugging Face API
-- `HUGGINGFACE_API_URL` - Hugging Face API URL (default: https://api-inference.huggingface.co/models)
-- `HUGGINGFACE_MODEL` - Default model name
-
 **ChromaDB (Local Development):**
 - `CHROMA_HOST` - ChromaDB server host (default: localhost)
 - `CHROMA_PORT` - ChromaDB server port (default: 8000)
@@ -165,7 +154,6 @@ wrangler tail
 ## Additional Documentation
 
 - [Cloudflare Workers Setup Guide](cloudflare/CLOUDFLARE_WORKERS_SETUP.md) - Complete guide for preparing and deploying to Cloudflare Workers
-- [Hugging Face Setup](huggingface/HUGGINGFACE_SETUP.md) - Guide for setting up Hugging Face models (optional)
 - [ChromaDB Setup](chromadb/CHROMADB_SETUP.md) - Instructions for deploying ChromaDB in different environments (optional)
 
 ## Next Steps
@@ -173,7 +161,7 @@ wrangler tail
 1. ✅ Basic FastAPI application setup
 2. ✅ Local development environment
 3. 📋 Prepare for Cloudflare Workers deployment (see [cloudflare/CLOUDFLARE_WORKERS_SETUP.md](cloudflare/CLOUDFLARE_WORKERS_SETUP.md))
-4. 📋 Set up external services (HuggingFace/ChromaDB) if needed
+4. 📋 Set up external services (ChromaDB) if needed
 5. 📋 Deploy to Cloudflare Workers
 
 ## Quick Start

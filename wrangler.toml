@@ -39,11 +39,6 @@ database_id = "YOUR_STAGING_DATABASE_ID_HERE"  # Replace with staging database I
 # Gemini Configuration
 # GEMINI_API_KEY - set via: wrangler secret put GEMINI_API_KEY
 
-# Hugging Face Configuration
-# HUGGINGFACE_API_TOKEN - set via: wrangler secret put HUGGINGFACE_API_TOKEN
-# HUGGINGFACE_MODEL - optional, defaults to sentiment analysis model
-# HUGGINGFACE_API_URL - optional, defaults to https://api-inference.huggingface.co/models
-
 # ChromaDB Configuration
 # For Cloudflare Workers, use ChromaDB Cloud or external instance:
 # CHROMA_API_URL - set via: wrangler secret put CHROMA_API_URL

@@ -1,0 +1,38 @@
+# Cursor AI Assistant Rules for Gaado Backend Project
+
+## Communication Style
+- Be brief. Don't explain code unless asked.
+- Write only changed code, not the entire file.
+- Answer directly without creating files unless required.
+
+## File Management
+- DO NOT create multiple README files - only use existing README.md
+- DO NOT create separate requirements files (requirements-workers.txt, requirements-local.txt, etc.)
+- DO NOT create deployment scripts unless explicitly requested
+- DO NOT create documentation files unless explicitly requested
+- Don't generate unnecessary text files unless asked
+- Keep it simple: one requirements.txt, one README.md
+
+## Code Changes
+- Only make changes when explicitly requested
+- Don't create new methods unless asked, edit existing ones instead
+- Don't create "helper" files or "utility" scripts unless asked
+- Don't add comments explaining obvious things
+- Don't create separate config files for different environments unless necessary
+- Try not to write large files, split functionality into components, but don't let them grow into too many small files
+
+## Deployment
+- Use `npx wrangler deploy` directly - no wrapper scripts needed
+- Cloudflare Workers automatically uses requirements.txt
+- Don't create deploy.sh or similar scripts unless explicitly requested
+
+## Project Structure
+- Keep existing structure
+- Don't reorganize unless asked
+- Don't create new directories unless necessary
+
+## When User Asks About Setup
+- Explain briefly, don't create files
+- Reference existing documentation if it exists
+- Only create files if explicitly requested
+

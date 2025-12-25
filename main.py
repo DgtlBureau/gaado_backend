@@ -1,6 +1,6 @@
 """
 FastAPI application for processing scraped data
-Simplified version without HuggingFace and ChromaDB dependencies
+Simplified version without ChromaDB dependencies
 """
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -12,7 +12,6 @@ import os
 import json
 from datetime import datetime
 from dotenv import load_dotenv
-from huggingface.huggingface_client import HuggingFaceClient
 from gemini.gemini_client import GeminiClient
 from database import init_database, get_database
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -137,12 +136,6 @@ class ScrapedData(BaseModel):
         default=None,
         description="Additional metadata about the scraped content"
     )
-
-
-class HuggingFaceChatRequest(BaseModel):
-    """Model for Hugging Face chat request"""
-    prompt: str = Field(..., description="Text prompt for the AI model")
-    model: Optional[str] = Field(default=None, description="Model name (optional, uses default if not specified)")
 
 
 class GeminiChatRequest(BaseModel):
@@ -630,88 +623,6 @@ async def root():
                 return div.innerHTML;
             }
             
-            async function chatHuggingFace() {
-                const prompt = document.getElementById('hf-prompt').value.trim();
-                const button = document.getElementById('hf-chat-btn');
-                const loading = document.getElementById('hf-loading');
-                const resultContainer = document.getElementById('hf-result-container');
-                
-                if (!prompt) {
-                    alert('Пожалуйста, введите запрос');
-                    return;
-                }
-                
-                // Показываем загрузку
-                button.disabled = true;
-                loading.classList.add('show');
-                resultContainer.classList.remove('show');
-                
-                try {
-                    const response = await fetch('/huggingface/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ prompt: prompt })
-                    });
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('HTTP Error:', response.status, errorText);
-                        showHfError(`Ошибка сервера (${response.status}): ${errorText}`);
-                        return;
-                    }
-                    
-                    const data = await response.json();
-                    console.log('Response data:', data);
-                    
-                    if (data.success) {
-                        displayHfResult(data.response, prompt);
-                    } else {
-                        showHfError(data.error || 'Произошла ошибка при обработке запроса');
-                    }
-                } catch (error) {
-                    console.error('Request error:', error);
-                    showHfError('Ошибка соединения: ' + error.message);
-                } finally {
-                    button.disabled = false;
-                    loading.classList.remove('show');
-                }
-            }
-            
-            function displayHfResult(response, prompt) {
-                const container = document.getElementById('hf-result-container');
-                
-                let html = `
-                    <div class="result-header">
-                        <h3>🤖 Response from HF Model</h3>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong style="color: #667eea;">Ваш запрос:</strong>
-                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap;">${escapeHtml(prompt)}</div>
-                    </div>
-                    <div>
-                        <strong style="color: #667eea;">Response:</strong>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(response)}</div>
-                    </div>
-                `;
-                
-                container.innerHTML = html;
-                container.classList.add('show');
-                container.classList.remove('error');
-            }
-            
-            function showHfError(message) {
-                const container = document.getElementById('hf-result-container');
-                container.innerHTML = `
-                    <div class="result-header">
-                        <h3 style="color: #ef4444;">❌ Ошибка</h3>
-                    </div>
-                    <p style="color: #ef4444;">${escapeHtml(message)}</p>
-                `;
-                container.classList.add('show', 'error');
-            }
-            
             async function chatGemini() {
                 const prompt = document.getElementById('gemini-prompt').value.trim();
                 const button = document.getElementById('gemini-chat-btn');
@@ -825,22 +736,6 @@ async def root():
                 <div id="gemini-result-container" class="result-container"></div>
             </div>
             
-            <div class="scraper-section">
-                <h2>🤖 Hugging Face Chat</h2>
-                <div class="scraper-form">
-                    <textarea 
-                        id="hf-prompt" 
-                        placeholder="Введите ваш запрос..."
-                    >What is the capital of France?</textarea>
-                    <button id="hf-chat-btn" onclick="chatHuggingFace()">Отправить</button>
-                </div>
-                <div id="hf-loading" class="loading">
-                    <div class="spinner"></div>
-                    <p>Обработка запроса...</p>
-                </div>
-                <div id="hf-result-container" class="result-container"></div>
-            </div>
-            
         </div>
     </body>
     </html>
@@ -859,44 +754,6 @@ async def get_feed(limit: int = Query(default=50, ge=1, le=200), offset: int = Q
         logger.error(f"Error getting feed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error getting feed: {str(e)}")
 
-
-
-@app.post("/huggingface/chat")
-async def chat_with_huggingface(request: HuggingFaceChatRequest):
-    """
-    Endpoint for chatting with Hugging Face model
-    
-    Args:
-        request: Request with prompt text and optional model name
-        
-    Returns:
-        Response from AI model
-    """
-    try:
-        client = HuggingFaceClient()
-        
-        if not client.is_available():
-            return {
-                "success": False,
-                "error": "HuggingFace client is not available. Check HF_API_KEY."
-            }
-        
-        response = client.simple_chat(
-            prompt=request.prompt,
-            model=request.model
-        )
-        
-        return {
-            "success": True,
-            "response": response,
-            "model": request.model or client.default_model
-        }
-    except Exception as e:
-        logger.error(f"Error processing Hugging Face request: {e}")
-        return {
-            "success": False,
-            "error": f"Internal error: {str(e)}"
-        }
 
 
 @app.post("/gemini/chat")
