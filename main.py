@@ -762,7 +762,10 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
             "error": f"Internal error: {str(e)}"
         }
 
-
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+    
 # Error handlers
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
