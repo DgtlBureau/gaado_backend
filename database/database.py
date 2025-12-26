@@ -1,22 +1,11 @@
 """
-Database module for Supabase PostgreSQL
-Provides abstraction layer for database operations
-Uses psycopg2 for synchronous operations and Supabase client for Storage
+Database module for Supabase
+Provides abstraction layer for Supabase operations
 """
-import json
 import logging
 import os
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Optional, Any
 from dotenv import load_dotenv
-import asyncpg  # type: ignore
-
-try:
-    import psycopg2  # type: ignore
-    PSYCOPG2_AVAILABLE = True
-except ImportError:
-    PSYCOPG2_AVAILABLE = False
-    psycopg2 = None  # type: ignore
 
 try:
     from supabase import create_client, Client  # type: ignore
@@ -36,30 +25,18 @@ logger = logging.getLogger(__name__)
 
 class Database:
     """
-    Database wrapper for Supabase PostgreSQL
+    Database wrapper for Supabase
     
-    Uses psycopg2 for synchronous database operations
-    Provides Supabase client for Storage (photos/files)
-    Also supports asyncpg for async operations if needed
+    Provides Supabase client for database and storage operations
     """
     
     def __init__(self):
         """
-        Initialize database connection for Supabase
+        Initialize Supabase client
         
-        Automatically connects via psycopg2 and initializes Supabase client.
-        Uses environment variables from .env file.
+        Automatically initializes Supabase client using environment variables from .env file.
         """
-        self.pool = None
         self._supabase_client: Optional[Any] = None  # type: ignore
-        self._psycopg2_connection = None
-        
-        # Auto-connect psycopg2 (for Supabase)
-        # if PSYCOPG2_AVAILABLE:
-        #     try:
-        #         self._connect_psycopg2()
-        #     except Exception as e:
-        #         logger.warning(f"Failed to auto-connect psycopg2: {e}")
         
         # Auto-initialize Supabase client if credentials available
         if SUPABASE_AVAILABLE and create_client is not None:
@@ -79,11 +56,11 @@ class Database:
                     self._supabase_client = create_client(
                         supabase_url,
                         supabase_key,
-                        options=ClientOptions(
-                            postgrest_client_timeout=10,
-                            storage_client_timeout=10,
-                            schema="public",
-                        )
+                        # options=ClientOptions(
+                        #     postgrest_client_timeout=10,
+                        #     storage_client_timeout=10,
+                        #     schema="public",
+                        # )
                     )
                 else:
                     self._supabase_client = create_client(supabase_url, supabase_key)
@@ -118,15 +95,9 @@ def init_database() -> Database:
     Initialize database instance for Supabase
     
     Returns:
-        Database instance (automatically connects via psycopg2 and initializes Supabase client)
+        Database instance (automatically initializes Supabase client)
     """
     global _db_instance
     
     _db_instance = Database()
     return _db_instance
-
-def close(self):
-    """Cleanup Supabase client"""
-    
-    # Supabase client doesn't need explicit cleanup, but we can reset it
-    self._supabase_client = None

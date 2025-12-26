@@ -20,14 +20,20 @@ from comments import router as comments_router
 load_dotenv()
 
 
-# Configure logging - DEBUG level for debugging
+# Configure logging - INFO level (suppress DEBUG logs from uvicorn/httptools)
 # Explicitly set output to stderr (terminal)
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     stream=sys.stderr,
     force=True  # Переопределяем существующую конфигурацию
 )
+
+# Suppress DEBUG logs from uvicorn and httptools
+logging.getLogger("uvicorn").setLevel(logging.INFO)
+logging.getLogger("uvicorn.access").setLevel(logging.INFO)
+logging.getLogger("httptools").setLevel(logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -42,6 +48,51 @@ app = FastAPI(
 
 # Include routers
 app.include_router(comments_router)
+
+# Health check endpoint for Supabase connection
+@app.get("/api/health/supabase")
+async def check_supabase_health():
+    """Check Supabase connection status"""
+    try:
+        db = get_database()
+        supabase = db.supabase
+        
+        if supabase is None:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "error",
+                    "message": "Supabase client is not initialized",
+                    "connected": False,
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+        
+        # Try a simple query to verify connection
+        test_start = datetime.now()
+        test_response = supabase.table("processed_comments").select("id").limit(1).execute()
+        test_end = datetime.now()
+        test_duration = (test_end - test_start).total_seconds()
+        
+        return {
+            "status": "ok",
+            "connected": True,
+            "response_time_ms": round(test_duration * 1000, 2),
+            "timestamp": datetime.now().isoformat(),
+            "supabase_url": os.getenv("SUPABASE_URL", "not_set")
+        }
+        
+    except Exception as e:
+        logger.error(f"Supabase health check failed: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
+                "connected": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+        )
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -62,15 +113,6 @@ async def shutdown_event():
     """Close database connections on shutdown"""
 
 
-class ScrapedData(BaseModel):
-    """Model for incoming scraped data"""
-    text: str = Field(..., description="Text content to process")
-    metadata: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Additional metadata about the scraped content"
-    )
-
-
 class GeminiChatRequest(BaseModel):
     """Model for Gemini chat request"""
     prompt: str = Field(..., description="Text prompt for the AI model")
@@ -84,9 +126,6 @@ class GeminiChatRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def root():
     """Main page with service information"""
-    # db = get_database()
-    # Get latest scraping result
-    # last_scraping_result = await db.get_latest_scraping_result()
     
     html_content = """
     <!DOCTYPE html>

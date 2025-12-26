@@ -4,6 +4,7 @@ Provides high-level methods for working with Supabase Storage and Database
 """
 import logging
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 from database.database import get_database
 
 logger = logging.getLogger(__name__)
@@ -62,12 +63,15 @@ def get_latest_comments(limit: int = 50, offset: int = 0,
         List of comment dictionaries with all fields including joined data
     """
     try:
+        request_start_time = datetime.now()
         db = get_database()
         supabase = db.supabase
         
         if supabase is None:
             logger.error("Supabase client is not initialized")
             return []
+        
+        logger.info(f"[SUPABASE] Fetching comments from Supabase (limit={limit}, offset={offset}) at {request_start_time.isoformat()}")
         
         # Build query with joins to get related data
         # Join with raw_comments, complaint_categories, sentiment_types, and threat_levels
@@ -95,7 +99,11 @@ def get_latest_comments(limit: int = 50, offset: int = 0,
             .execute()
         )
         
+        request_end_time = datetime.now()
+        request_duration = (request_end_time - request_start_time).total_seconds()
+        
         comments = response.data if hasattr(response, 'data') else []
+        logger.info(f"[SUPABASE] Successfully fetched {len(comments)} comments in {request_duration:.3f}s at {request_end_time.isoformat()}")
         
         # Flatten the nested structure for easier access
         flattened_comments = []
@@ -159,12 +167,12 @@ def get_latest_comments(limit: int = 50, offset: int = 0,
             
             flattened_comments.append(flattened)
         
-        logger.info(f"Retrieved {len(flattened_comments)} comments")
+        logger.info(f"[SUPABASE] Retrieved {len(flattened_comments)} comments (flattened)")
         
         return flattened_comments
         
     except Exception as e:
-        logger.error(f"Error getting latest comments: {e}")
+        logger.error(f"[SUPABASE] Error getting latest comments: {e}", exc_info=True)
         return []
 
 

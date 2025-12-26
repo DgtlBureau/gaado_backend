@@ -6,13 +6,13 @@ from fastapi import APIRouter, Query
 from fastapi.responses import HTMLResponse
 from datetime import datetime
 import logging
+from dateutil import parser as date_parser
 from database.database_api import get_latest_comments
 from database.database import get_database
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
 
 def escape_html(text: str) -> str:
     """Escape HTML special characters"""
@@ -35,12 +35,20 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
         
         # Use the flattened data directly
         total = len(comments_data)  # Approximate total (could be improved with count query)
+        fetch_success = True
         
     except Exception as e:
         logger.error(f"Error loading comments: {e}")
         comments_data = []
         total = 0
+        fetch_success = False
     
+    # Determine status class and icon
+    status_class = "online" if fetch_success else "offline"
+    status_icon = "🟢" if fetch_success else "🔴"
+    fetch_time_str = datetime.now().strftime('%H:%M:%S')
+    
+    # Build HTML - CSS as regular string, body with variables as f-string
     html_content = """
     <!DOCTYPE html>
     <html lang="en">
@@ -90,6 +98,20 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
             .header .monitoring::before {
                 content: "📘";
                 font-size: 1.2em;
+            }
+            .last-update {
+                color: #888;
+                font-size: 0.85em;
+                margin-left: 20px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .last-update.online {
+                color: #10b981;
+            }
+            .last-update.offline {
+                color: #ef4444;
             }
             .live-indicator {
                 display: flex;
@@ -358,6 +380,10 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
             <div class="header-left">
                 <h1>COMMENTS</h1>
                 <div class="monitoring">Monitoring: Premier Bank Official Page</div>
+                <div class="last-update """ + status_class + """">
+                    <span>""" + status_icon + """</span>
+                    <span>Last update: """ + fetch_time_str + """</span>
+                </div>
                 <div class="nav-links">
                     <a href="/" class="nav-link">Home</a>
                     <a href="/comments" class="nav-link active">Feed</a>
@@ -394,14 +420,14 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
             
             # Format date
             time_str = ""
-            if created_at:
-                try:
-                    if isinstance(created_at, str):
-                        dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-                        time_str = dt.strftime("%H:%M:%S")
-                except (ValueError, AttributeError) as e:
-                    logger.debug(f"Could not parse date: {e}")
-                    pass
+            # if created_at:
+            #     try:
+            #         if isinstance(created_at, str):
+            #             dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+            #             time_str = dt.strftime("%H:%M:%S")
+            #     except (ValueError, AttributeError) as e:
+            #         logger.debug(f"Could not parse date: {e}")
+            #         pass
             
             # Determine category color based on threat level
             category_color = "orange"
@@ -453,7 +479,6 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
                     <div class="comment-user-info">
                         <div class="comment-user-name">{escape_html(author)}</div>
                         <div class="comment-meta">
-                            <span>{time_str}</span>
                             <span>via Mobile</span>
                         </div>
                     </div>
@@ -485,7 +510,7 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
     current_page = (current_offset // current_limit) + 1
     total_pages = (total + current_limit - 1) // current_limit if total > 0 else 1
     
-    html_content += """
+    html_content += f"""
         </div>
         
         <div class="pagination">
@@ -513,20 +538,27 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
         </div>
         
         <script>
-            function loadPage(offset) {{
-                window.location.href = `/comments?offset=${{offset}}&limit={current_limit}`;
-            }}
+            # function loadPage(offset) {{
+            #     window.location.href = `/comments?offset=${{offset}}&limit={current_limit}&_t=${{Date.now()}}`;
+            # }}
             
-            // Auto-refresh every 30 seconds
-            setTimeout(() => {{
-                if (document.visibilityState === 'visible') {{
-                    window.location.reload();
-                }}
-            }}, 30000);
+            # // Auto-refresh every 30 seconds
+            # setTimeout(() => {{
+            #     if (document.visibilityState === 'visible') {{
+            #         window.location.href = window.location.pathname + window.location.search.split('&_t=')[0] + '&_t=' + Date.now();
+            #     }}
+            # }}, 30000);
         </script>
     </body>
     </html>
     """
     
-    return HTMLResponse(content=html_content)
+    # Add headers to prevent caching
+    headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+    }
+    
+    return HTMLResponse(content=html_content, headers=headers)
 
