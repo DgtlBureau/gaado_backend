@@ -10,45 +10,6 @@ from database.database import get_database
 logger = logging.getLogger(__name__)
 
 
-def download_photo_to_file(bucket_name: str, file_path: str, local_file_path: str) -> bool:
-    """
-    Download a photo from Supabase Storage to local file
-    
-    Args:
-        bucket_name: Name of the storage bucket (e.g., 'avatars', 'photos')
-        file_path: Path to the file in storage (e.g., 'folder/avatar1.png')
-        local_file_path: Local file path where to save the photo (e.g., './myfolder/avatar1.png')
-    
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        db = get_database()
-        supabase = db.supabase
-        
-        if supabase is None:
-            logger.error("Supabase client is not initialized")
-            return False
-        
-        # Download file from Supabase Storage
-        response = (
-            supabase.storage
-            .from_(bucket_name)
-            .download(file_path)
-        )
-        
-        # Write to local file
-        with open(local_file_path, "wb+") as f:
-            f.write(response)
-        
-        logger.info(f"Photo downloaded successfully: {file_path} -> {local_file_path}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error downloading photo: {e}")
-        return False
-
-
 def get_latest_comments(limit: int = 50, offset: int = 0, 
                        is_reviewed: Optional[bool] = None) -> List[Dict[str, Any]]:
     """

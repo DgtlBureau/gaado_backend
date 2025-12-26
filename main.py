@@ -13,7 +13,10 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from gemini.gemini_client import GeminiClient
+from database.model_parser import ModelParser
 from database.database import init_database, get_database
+from database.database_api import add_raw_comment, add_processed_comment
+from database.models import SaveProcessedCommentRequest
 from comments import router as comments_router
 
 # Load environment variables from .env file
@@ -29,11 +32,6 @@ logging.basicConfig(
     force=True  # Переопределяем существующую конфигурацию
 )
 
-# Suppress DEBUG logs from uvicorn and httptools
-logging.getLogger("uvicorn").setLevel(logging.INFO)
-logging.getLogger("uvicorn.access").setLevel(logging.INFO)
-logging.getLogger("httptools").setLevel(logging.INFO)
-
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -48,51 +46,6 @@ app = FastAPI(
 
 # Include routers
 app.include_router(comments_router)
-
-# Health check endpoint for Supabase connection
-@app.get("/api/health/supabase")
-async def check_supabase_health():
-    """Check Supabase connection status"""
-    try:
-        db = get_database()
-        supabase = db.supabase
-        
-        if supabase is None:
-            return JSONResponse(
-                status_code=503,
-                content={
-                    "status": "error",
-                    "message": "Supabase client is not initialized",
-                    "connected": False,
-                    "timestamp": datetime.now().isoformat()
-                }
-            )
-        
-        # Try a simple query to verify connection
-        test_start = datetime.now()
-        test_response = supabase.table("processed_comments").select("id").limit(1).execute()
-        test_end = datetime.now()
-        test_duration = (test_end - test_start).total_seconds()
-        
-        return {
-            "status": "ok",
-            "connected": True,
-            "response_time_ms": round(test_duration * 1000, 2),
-            "timestamp": datetime.now().isoformat(),
-            "supabase_url": os.getenv("SUPABASE_URL", "not_set")
-        }
-        
-    except Exception as e:
-        logger.error(f"Supabase health check failed: {e}")
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "error",
-                "connected": False,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            }
-        )
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -631,7 +584,13 @@ async def root():
                     console.log('Response data:', data);
                     
                     if (data.success) {
-                        displayGeminiResult(data.response, prompt);
+                        // Отображаем результат
+                        displayGeminiResult(data.response, prompt, data.parsed_data);
+                        
+                        // Сохраняем в БД если есть parsed_data
+                        if (data.parsed_data) {
+                            await saveProcessedCommentToDatabase(data.parsed_data, prompt);
+                        }
                     } else {
                         showGeminiError(data.error || 'Произошла ошибка при обработке запроса');
                     }
@@ -644,6 +603,41 @@ async def root():
                 }
             }
             
+            async function saveProcessedCommentToDatabase(parsedData, somaliText) {
+                // Генерируем временные ID для демонстрации (в реальном приложении они должны приходить из формы)
+                const fbCommentId = 'gemini_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const postId = 1; // Прикрепляем к реальному посту
+                
+                try {
+                    const response = await fetch('/gemini/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            fb_comment_id: fbCommentId,
+                            post_id: postId,
+                            translation_en: parsedData.translation_en,
+                            threat_level_slug: parsedData.threat_level_slug,
+                            confidence_score: parsedData.confidence_score,
+                            dialect: parsedData.dialect,
+                            keywords: parsedData.keywords,
+                            somali_text: somaliText || parsedData.somali_text
+                        })
+                    });
+                    
+                    const saveResult = await response.json();
+                    
+                    if (saveResult.success) {
+                        console.log('Successfully saved to database:', saveResult);
+                    } else {
+                        console.warn('Failed to save to database:', saveResult.error);
+                    }
+                } catch (error) {
+                    console.error('Error saving to database:', error);
+                }
+            }
+            
             function displayGeminiResult(response, prompt) {
                 const container = document.getElementById('gemini-result-container');
                 
@@ -652,7 +646,7 @@ async def root():
                         <h3>🤖 Response from Gemini</h3>
                     </div>
                     <div style="margin-bottom: 15px;">
-                        <strong style="color: #667eea;">Ваш запрос:</strong>
+                        <strong style="color: #667eea;">Request:</strong>
                         <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap;">${escapeHtml(prompt)}</div>
                     </div>
                     <div>
@@ -699,11 +693,11 @@ async def root():
                         id="gemini-prompt" 
                         placeholder="Input your prompt here..."
                     >Waa bankiga kaliya ee dadkiisa cilada heesato ku xaliyo ka wada bax dib usoo bilaaw tirtir ee dib usoo daji</textarea>
-                    <button id="gemini-chat-btn" onclick="chatGemini()">Отправить</button>
+                    <button id="gemini-chat-btn" onclick="chatGemini()">Send</button>
                 </div>
                 <div id="gemini-loading" class="loading">
                     <div class="spinner"></div>
-                    <p>Обработка запроса...</p>
+                    <p>Response-request with AI.</p>
                 </div>
                 <div id="gemini-result-container" class="result-container"></div>
             </div>
@@ -747,10 +741,23 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
             model=request.model
         )
         
+        # Parse response using ModelParser
+        parser = ModelParser()
+        processed_comment_data = parser.parse_gemini_response(response)
+        
+        # Convert ProcessedCommentCreate to dict for response (excluding raw_comment_id)
+        parsed_data_dict = None
+        if processed_comment_data:
+            # Use model_dump() to serialize, excluding raw_comment_id
+            parsed_data_dict = processed_comment_data.model_dump(exclude={"raw_comment_id"})
+            # Add somali_text from original prompt
+            parsed_data_dict["somali_text"] = request.prompt
+        
         return {
             "success": True,
             "response": response,
-            "model": request.model or client.default_model
+            "model": request.model or client.default_model,
+            "parsed_data": parsed_data_dict
         }
     except Exception as e:
         logger.error(f"Error processing Gemini request: {e}", exc_info=True)
@@ -758,6 +765,68 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
             "success": False,
             "error": f"Internal error: {str(e)}"
         }
+
+
+@app.post("/gemini/save")
+async def save_processed_comment(request: SaveProcessedCommentRequest):
+    """
+    Endpoint for saving processed comment to database
+    
+    Args:
+        request: Request with processed comment data
+        
+    Returns:
+        Success status and saved comment data
+    """
+    try:
+        # First, create raw comment
+        raw_comment = add_raw_comment(
+            fb_comment_id=request.fb_comment_id,
+            post_id=request.post_id,
+            content=request.somali_text or ""
+        )
+        
+        if not raw_comment or not raw_comment.get("id"):
+            logger.warning("Failed to save raw comment to database")
+            return {
+                "success": False,
+                "error": "Failed to save raw comment to database"
+            }
+        
+        raw_comment_id = raw_comment["id"]
+        
+        # Then, create processed comment
+        processed_comment = add_processed_comment(
+            raw_comment_id=raw_comment_id,
+            translation_en=request.translation_en,
+            threat_level_slug=request.threat_level_slug,
+            confidence_score=request.confidence_score,
+            dialect=request.dialect,
+            keywords=request.keywords,
+            is_reviewed=False
+        )
+        
+        if processed_comment:
+            logger.info(f"Successfully saved comment to database: raw_comment_id={raw_comment_id}")
+            return {
+                "success": True,
+                "raw_comment_id": raw_comment_id,
+                "processed_comment": processed_comment
+            }
+        else:
+            logger.warning("Failed to save processed comment to database")
+            return {
+                "success": False,
+                "error": "Failed to save processed comment to database"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error saving to database: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": f"Internal error: {str(e)}"
+        }
+
 
 @app.get("/health")
 async def health_check():
@@ -770,5 +839,3 @@ async def http_exception_handler(request, exc):
         status_code=exc.status_code,
         content={"error": exc.detail, "status_code": exc.status_code}
     )
-
-
