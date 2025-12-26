@@ -1,175 +1,206 @@
 """
-Database module for Cloudflare Workers D1 (SQLite)
+Database module for PostgreSQL
 Provides abstraction layer for database operations
 """
 import json
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+import asyncpg  # type: ignore
 
 logger = logging.getLogger(__name__)
 
 
 class Database:
     """
-    Database wrapper for Cloudflare D1 (SQLite)
+    Database wrapper for PostgreSQL
     
-    Works with D1 database binding in Cloudflare Workers environment
-    Falls back to in-memory storage for local development
+    Uses asyncpg for async PostgreSQL operations
     """
     
-    def __init__(self, db=None):
+    def __init__(self, connection_pool: Optional[asyncpg.Pool] = None):
         """
         Initialize database connection
         
         Args:
-            db: D1 database binding (from Cloudflare Workers) or None for local dev
+            connection_pool: asyncpg connection pool (if None, will create from DATABASE_URL)
         """
-        self.db = db
-        self.is_d1_available = db is not None
-        self._schema_initialized = False  # Flag to prevent multiple schema initializations
-        
-        if not self.is_d1_available:
-            logger.warning("D1 database not available, using in-memory storage for local development")
-            # Fallback to in-memory storage
-            self._scraping_results: Dict[str, Dict[str, Any]] = {}
-            self._scraping_status: Dict[str, Dict[str, Any]] = {}
-            self._raw_posts: Dict[int, Dict[str, Any]] = {}
-            self._raw_comments: Dict[int, Dict[str, Any]] = {}
-            self._processed_comments: Dict[int, Dict[str, Any]] = {}
-            self._next_post_id = 1
-            self._next_comment_id = 1
-            self._next_processed_id = 1
+        self.pool = connection_pool
+        self._schema_initialized = False
+    
+    async def connect(self):
+        """Create connection pool if not provided"""
+        if self.pool is None:
+            database_url = os.getenv("DATABASE_URL")
+            if not database_url:
+                raise ValueError("DATABASE_URL environment variable is required")
+            
+            self.pool = await asyncpg.create_pool(
+                database_url,
+                min_size=1,
+                max_size=10,
+                command_timeout=60
+            )
+            logger.info("Database connection pool created")
+    
+    async def close(self):
+        """Close connection pool"""
+        if self.pool:
+            await self.pool.close()
+            logger.info("Database connection pool closed")
+    
+    async def execute(self, query: str, *args):
+        """Execute a query"""
+        if self.pool is None:
+            await self.connect()
+        async with self.pool.acquire() as conn:  # type: ignore
+            return await conn.execute(query, *args)
+    
+    async def fetch(self, query: str, *args):
+        """Fetch multiple rows"""
+        if self.pool is None:
+            await self.connect()
+        async with self.pool.acquire() as conn:  # type: ignore
+            return await conn.fetch(query, *args)
+    
+    async def fetchrow(self, query: str, *args):
+        """Fetch a single row"""
+        if self.pool is None:
+            await self.connect()
+        async with self.pool.acquire() as conn:  # type: ignore
+            return await conn.fetchrow(query, *args)
+    
+    async def fetchval(self, query: str, *args):
+        """Fetch a single value"""
+        if self.pool is None:
+            await self.connect()
+        async with self.pool.acquire() as conn:  # type: ignore
+            return await conn.fetchval(query, *args)
     
     async def init_schema(self):
         """
         Initialize database schema (create tables if they don't exist)
         Should be called once during application startup
         """
-        # Prevent multiple initializations
         if self._schema_initialized:
             return
         
-        if not self.is_d1_available:
-            logger.info("Skipping schema initialization (using in-memory storage)")
-            self._schema_initialized = True
-            return
+        if self.pool is None:
+            await self.connect()
         
         try:
-            # Enable foreign keys
-            await self.db.execute("PRAGMA foreign_keys = ON")
-            
             # Create scraping_results table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS scraping_results (
-                    result_id TEXT PRIMARY KEY,
-                    page_username TEXT,
+                    result_id VARCHAR(255) PRIMARY KEY,
+                    page_username VARCHAR(255),
                     url TEXT,
-                    data TEXT NOT NULL,  -- JSON string with full result data
-                    fetched_at TEXT NOT NULL,
-                    saved_at TEXT NOT NULL,
+                    data TEXT NOT NULL,
+                    fetched_at TIMESTAMP NOT NULL,
+                    saved_at TIMESTAMP NOT NULL,
                     total_count INTEGER DEFAULT 0,
                     duration_seconds REAL
                 )
             """)
             
             # Create scraping_status table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS scraping_status (
-                    result_id TEXT PRIMARY KEY,
-                    status TEXT NOT NULL,
+                    result_id VARCHAR(255) PRIMARY KEY,
+                    status VARCHAR(50) NOT NULL,
                     url TEXT,
-                    started_at TEXT NOT NULL,
-                    completed_at TEXT,
+                    started_at TIMESTAMP NOT NULL,
+                    completed_at TIMESTAMP,
                     duration_seconds REAL,
                     comments_count INTEGER DEFAULT 0,
-                    method TEXT,
-                    success INTEGER DEFAULT 0,  -- SQLite boolean (0/1)
-                    FOREIGN KEY (result_id) REFERENCES scraping_results(result_id)
+                    method VARCHAR(50),
+                    success BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (result_id) REFERENCES scraping_results(result_id) ON DELETE CASCADE
                 )
             """)
             
             # Create users table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    email TEXT UNIQUE NOT NULL,
-                    session_token TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    id SERIAL PRIMARY KEY,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    session_token VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             
             # Create threat_levels table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS threat_levels (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL,
-                    color_code TEXT,
+                    id SERIAL PRIMARY KEY,
+                    slug VARCHAR(50) UNIQUE NOT NULL,
+                    name VARCHAR(100) NOT NULL,
+                    color_code VARCHAR(10),
                     description TEXT
                 )
             """)
             
             # Create complaint_categories table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS complaint_categories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL,
+                    id SERIAL PRIMARY KEY,
+                    slug VARCHAR(50) UNIQUE NOT NULL,
+                    name VARCHAR(100) NOT NULL,
                     description TEXT
                 )
             """)
             
             # Create sentiment_types table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS sentiment_types (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    slug TEXT UNIQUE NOT NULL,
-                    name TEXT NOT NULL
+                    id SERIAL PRIMARY KEY,
+                    slug VARCHAR(50) UNIQUE NOT NULL,
+                    name VARCHAR(100) NOT NULL
                 )
             """)
             
             # Create raw_posts table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS raw_posts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    fb_post_id TEXT UNIQUE NOT NULL,
+                    id SERIAL PRIMARY KEY,
+                    fb_post_id VARCHAR(255) UNIQUE NOT NULL,
                     content TEXT,
                     reaction_count INTEGER DEFAULT 0,
                     share_count INTEGER DEFAULT 0,
-                    scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             
             # Create raw_comments table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS raw_comments (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    fb_comment_id TEXT UNIQUE NOT NULL,
+                    id SERIAL PRIMARY KEY,
+                    fb_comment_id VARCHAR(255) UNIQUE NOT NULL,
                     post_id INTEGER NOT NULL,
                     parent_comment_id INTEGER,
-                    author_name TEXT,
+                    author_name VARCHAR(255),
                     content TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (post_id) REFERENCES raw_posts(id) ON DELETE CASCADE,
                     FOREIGN KEY (parent_comment_id) REFERENCES raw_comments(id) ON DELETE SET NULL
                 )
             """)
             
             # Create processed_comments table
-            await self.db.execute("""
+            await self.execute("""
                 CREATE TABLE IF NOT EXISTS processed_comments (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     raw_comment_id INTEGER NOT NULL UNIQUE,
                     category_id INTEGER,
                     sentiment_id INTEGER,
                     threat_level_id INTEGER,
                     translation_en TEXT,
                     confidence_score REAL,
-                    dialect TEXT,
-                    keywords JSON,
-                    is_reviewed BOOLEAN DEFAULT 0,
-                    processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    dialect VARCHAR(50),
+                    keywords JSONB,
+                    is_reviewed BOOLEAN DEFAULT FALSE,
+                    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (raw_comment_id) REFERENCES raw_comments(id) ON DELETE CASCADE,
                     FOREIGN KEY (category_id) REFERENCES complaint_categories(id),
                     FOREIGN KEY (sentiment_id) REFERENCES sentiment_types(id),
@@ -178,127 +209,131 @@ class Database:
             """)
             
             # Create indexes
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_scraping_results_fetched_at 
                 ON scraping_results(fetched_at DESC)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_scraping_results_page_username 
                 ON scraping_results(page_username)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_complaint_categories_slug 
                 ON complaint_categories(slug)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_sentiment_types_slug 
                 ON sentiment_types(slug)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_threat_levels_slug 
                 ON threat_levels(slug)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_posts_fb_post_id 
                 ON raw_posts(fb_post_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_posts_scraped_at 
                 ON raw_posts(scraped_at DESC)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_comments_fb_comment_id 
                 ON raw_comments(fb_comment_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_comments_post_id 
                 ON raw_comments(post_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_comments_parent_comment_id 
                 ON raw_comments(parent_comment_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_raw_comments_created_at 
                 ON raw_comments(created_at DESC)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_raw_comment_id 
                 ON processed_comments(raw_comment_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_category_id 
                 ON processed_comments(category_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_sentiment_id 
                 ON processed_comments(sentiment_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_threat_level_id 
                 ON processed_comments(threat_level_id)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_is_reviewed 
                 ON processed_comments(is_reviewed)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_processed_comments_processed_at 
                 ON processed_comments(processed_at DESC)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_users_email 
                 ON users(email)
             """)
             
-            await self.db.execute("""
+            await self.execute("""
                 CREATE INDEX IF NOT EXISTS idx_users_session_token 
                 ON users(session_token)
             """)
             
             # Seed data
-            await self.db.execute("""
-                INSERT OR IGNORE INTO threat_levels (slug, name, color_code) VALUES 
+            await self.execute("""
+                INSERT INTO threat_levels (slug, name, color_code) VALUES 
                 ('nominal', 'Nominal', '#10B981'),
                 ('elevated', 'Elevated', '#F59E0B'),
                 ('critical', 'Critical', '#EF4444')
+                ON CONFLICT (slug) DO NOTHING
             """)
             
-            await self.db.execute("""
-                INSERT OR IGNORE INTO sentiment_types (slug, name) VALUES 
+            await self.execute("""
+                INSERT INTO sentiment_types (slug, name) VALUES 
                 ('friendly', 'Friendly'),
                 ('anxious', 'Anxious'),
                 ('angry', 'Angry')
+                ON CONFLICT (slug) DO NOTHING
             """)
             
-            await self.db.execute("""
-                INSERT OR IGNORE INTO complaint_categories (slug, name) VALUES 
+            await self.execute("""
+                INSERT INTO complaint_categories (slug, name) VALUES 
                 ('support_service', 'Support Service'),
                 ('offline_branch', 'Offline Branch'),
                 ('mobile_app', 'Mobile App'),
                 ('website', 'Website'),
                 ('pricing_policy', 'Pricing Policy')
+                ON CONFLICT (slug) DO NOTHING
             """)
             
-            await self.db.execute("""
-                INSERT OR IGNORE INTO users (email) VALUES ('admin@gaado.bank')
+            await self.execute("""
+                INSERT INTO users (email) VALUES ('admin@gaado.bank')
+                ON CONFLICT (email) DO NOTHING
             """)
             
             logger.info("Database schema initialized successfully")
@@ -311,22 +346,22 @@ class Database:
     
     async def save_scraping_result(self, result_id: str, data: Dict[str, Any]) -> str:
         """Save Facebook scraping result"""
-        if not self.is_d1_available:
-            self._scraping_results[result_id] = {
-                **data,
-                "result_id": result_id,
-                "saved_at": datetime.now().isoformat()
-            }
-            return result_id
-        
         data_json = json.dumps(data)
         fetched_at = data.get("fetched_at", datetime.now().isoformat())
         saved_at = datetime.now().isoformat()
         
-        await self.db.execute("""
-            INSERT OR REPLACE INTO scraping_results 
+        await self.execute("""
+            INSERT INTO scraping_results 
             (result_id, page_username, url, data, fetched_at, saved_at, total_count, duration_seconds)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            ON CONFLICT (result_id) DO UPDATE SET
+                page_username = EXCLUDED.page_username,
+                url = EXCLUDED.url,
+                data = EXCLUDED.data,
+                fetched_at = EXCLUDED.fetched_at,
+                saved_at = EXCLUDED.saved_at,
+                total_count = EXCLUDED.total_count,
+                duration_seconds = EXCLUDED.duration_seconds
         """, 
             result_id,
             data.get("page_username"),
@@ -342,14 +377,11 @@ class Database:
     
     async def get_scraping_result(self, result_id: str) -> Optional[Dict[str, Any]]:
         """Get scraping result by ID"""
-        if not self.is_d1_available:
-            return self._scraping_results.get(result_id)
-        
-        result = await self.db.prepare("""
+        result = await self.fetchrow("""
             SELECT result_id, page_username, url, data, fetched_at, saved_at, total_count, duration_seconds
             FROM scraping_results
-            WHERE result_id = ?
-        """).bind(result_id).first()
+            WHERE result_id = $1
+        """, result_id)
         
         if not result:
             return None
@@ -363,31 +395,19 @@ class Database:
     
     async def list_scraping_results(self, limit: int = 10) -> List[Dict[str, Any]]:
         """List recent scraping results"""
-        if not self.is_d1_available:
-            results = []
-            for result_id, result_data in list(self._scraping_results.items())[-limit:]:
-                results.append({
-                    "result_id": result_id,
-                    "url": result_data.get("url"),
-                    "comments_count": result_data.get("total_count", 0),
-                    "fetched_at": result_data.get("fetched_at"),
-                    "duration_seconds": result_data.get("duration_seconds")
-                })
-            return results
-        
-        results = await self.db.prepare("""
+        results = await self.fetch("""
             SELECT result_id, url, total_count, fetched_at, duration_seconds
             FROM scraping_results
             ORDER BY fetched_at DESC
-            LIMIT ?
-        """).bind(limit).all()
+            LIMIT $1
+        """, limit)
         
         return [
             {
                 "result_id": r["result_id"],
                 "url": r["url"],
                 "comments_count": r["total_count"] or 0,
-                "fetched_at": r["fetched_at"],
+                "fetched_at": r["fetched_at"].isoformat() if r["fetched_at"] else None,
                 "duration_seconds": r["duration_seconds"]
             }
             for r in results
@@ -395,19 +415,12 @@ class Database:
     
     async def get_latest_scraping_result(self) -> Optional[Dict[str, Any]]:
         """Get the latest scraping result"""
-        if not self.is_d1_available:
-            if not self._scraping_results:
-                return None
-            latest_key = max(self._scraping_results.keys(), 
-                           key=lambda k: self._scraping_results[k].get('fetched_at', ''))
-            return self._scraping_results[latest_key]
-        
-        result = await self.db.prepare("""
+        result = await self.fetchrow("""
             SELECT result_id, page_username, url, data, fetched_at, saved_at, total_count, duration_seconds
             FROM scraping_results
             ORDER BY fetched_at DESC
             LIMIT 1
-        """).first()
+        """)
         
         if not result:
             return None
@@ -416,21 +429,26 @@ class Database:
         return {
             **data,
             "result_id": result["result_id"],
-            "saved_at": result["saved_at"]
+            "saved_at": result["saved_at"].isoformat() if result["saved_at"] else None
         }
     
     # ========== Scraping Status Operations ==========
     
     async def save_scraping_status(self, result_id: str, status_data: Dict[str, Any]) -> str:
         """Save scraping status"""
-        if not self.is_d1_available:
-            self._scraping_status[result_id] = status_data
-            return result_id
-        
-        await self.db.execute("""
-            INSERT OR REPLACE INTO scraping_status
+        await self.execute("""
+            INSERT INTO scraping_status
             (result_id, status, url, started_at, completed_at, duration_seconds, comments_count, method, success)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            ON CONFLICT (result_id) DO UPDATE SET
+                status = EXCLUDED.status,
+                url = EXCLUDED.url,
+                started_at = EXCLUDED.started_at,
+                completed_at = EXCLUDED.completed_at,
+                duration_seconds = EXCLUDED.duration_seconds,
+                comments_count = EXCLUDED.comments_count,
+                method = EXCLUDED.method,
+                success = EXCLUDED.success
         """,
             result_id,
             status_data.get("status", "unknown"),
@@ -440,21 +458,18 @@ class Database:
             status_data.get("duration_seconds"),
             status_data.get("comments_count", 0),
             status_data.get("method"),
-            1 if status_data.get("success", False) else 0
+            status_data.get("success", False)
         )
         
         return result_id
     
     async def get_scraping_status(self, result_id: str) -> Optional[Dict[str, Any]]:
         """Get scraping status by ID"""
-        if not self.is_d1_available:
-            return self._scraping_status.get(result_id)
-        
-        result = await self.db.prepare("""
+        result = await self.fetchrow("""
             SELECT result_id, status, url, started_at, completed_at, duration_seconds, comments_count, method, success
             FROM scraping_status
-            WHERE result_id = ?
-        """).bind(result_id).first()
+            WHERE result_id = $1
+        """, result_id)
         
         if not result:
             return None
@@ -463,8 +478,8 @@ class Database:
             "result_id": result["result_id"],
             "status": result["status"],
             "url": result["url"],
-            "started_at": result["started_at"],
-            "completed_at": result["completed_at"],
+            "started_at": result["started_at"].isoformat() if result["started_at"] else None,
+            "completed_at": result["completed_at"].isoformat() if result["completed_at"] else None,
             "duration_seconds": result["duration_seconds"],
             "comments_count": result["comments_count"] or 0,
             "method": result["method"],
@@ -475,261 +490,145 @@ class Database:
     
     async def get_threat_levels(self) -> List[Dict[str, Any]]:
         """Get all threat levels"""
-        if not self.is_d1_available:
-            return [
-                {"id": 1, "slug": "nominal", "name": "Nominal", "color_code": "#10B981"},
-                {"id": 2, "slug": "elevated", "name": "Elevated", "color_code": "#F59E0B"},
-                {"id": 3, "slug": "critical", "name": "Critical", "color_code": "#EF4444"}
-            ]
-        
-        results = await self.db.prepare("SELECT id, slug, name, color_code, description FROM threat_levels ORDER BY id").all()
+        results = await self.fetch("SELECT id, slug, name, color_code, description FROM threat_levels ORDER BY id")
         return [dict(r) for r in results]
     
     async def get_sentiment_types(self) -> List[Dict[str, Any]]:
         """Get all sentiment types"""
-        if not self.is_d1_available:
-            return [
-                {"id": 1, "slug": "friendly", "name": "Friendly"},
-                {"id": 2, "slug": "anxious", "name": "Anxious"},
-                {"id": 3, "slug": "angry", "name": "Angry"}
-            ]
-        
-        results = await self.db.prepare("SELECT id, slug, name FROM sentiment_types ORDER BY id").all()
+        results = await self.fetch("SELECT id, slug, name FROM sentiment_types ORDER BY id")
         return [dict(r) for r in results]
     
     async def get_complaint_categories(self) -> List[Dict[str, Any]]:
         """Get all complaint categories"""
-        if not self.is_d1_available:
-            return [
-                {"id": 1, "slug": "support_service", "name": "Support Service"},
-                {"id": 2, "slug": "offline_branch", "name": "Offline Branch"},
-                {"id": 3, "slug": "mobile_app", "name": "Mobile App"},
-                {"id": 4, "slug": "website", "name": "Website"},
-                {"id": 5, "slug": "pricing_policy", "name": "Pricing Policy"}
-            ]
-        
-        results = await self.db.prepare("SELECT id, slug, name, description FROM complaint_categories ORDER BY id").all()
+        results = await self.fetch("SELECT id, slug, name, description FROM complaint_categories ORDER BY id")
         return [dict(r) for r in results]
     
     async def get_threat_level_by_slug(self, slug: str) -> Optional[Dict[str, Any]]:
         """Get threat level by slug"""
-        if not self.is_d1_available:
-            levels = {
-                "nominal": {"id": 1, "slug": "nominal", "name": "Nominal", "color_code": "#10B981"},
-                "elevated": {"id": 2, "slug": "elevated", "name": "Elevated", "color_code": "#F59E0B"},
-                "critical": {"id": 3, "slug": "critical", "name": "Critical", "color_code": "#EF4444"}
-            }
-            return levels.get(slug)
-        
-        result = await self.db.prepare("SELECT id, slug, name, color_code, description FROM threat_levels WHERE slug = ?").bind(slug).first()
+        result = await self.fetchrow("SELECT id, slug, name, color_code, description FROM threat_levels WHERE slug = $1", slug)
         return dict(result) if result else None
     
     async def get_sentiment_type_by_slug(self, slug: str) -> Optional[Dict[str, Any]]:
         """Get sentiment type by slug"""
-        if not self.is_d1_available:
-            types = {
-                "friendly": {"id": 1, "slug": "friendly", "name": "Friendly"},
-                "anxious": {"id": 2, "slug": "anxious", "name": "Anxious"},
-                "angry": {"id": 3, "slug": "angry", "name": "Angry"}
-            }
-            return types.get(slug)
-        
-        result = await self.db.prepare("SELECT id, slug, name FROM sentiment_types WHERE slug = ?").bind(slug).first()
+        result = await self.fetchrow("SELECT id, slug, name FROM sentiment_types WHERE slug = $1", slug)
         return dict(result) if result else None
     
     async def get_complaint_category_by_slug(self, slug: str) -> Optional[Dict[str, Any]]:
         """Get complaint category by slug"""
-        if not self.is_d1_available:
-            categories = {
-                "support_service": {"id": 1, "slug": "support_service", "name": "Support Service"},
-                "offline_branch": {"id": 2, "slug": "offline_branch", "name": "Offline Branch"},
-                "mobile_app": {"id": 3, "slug": "mobile_app", "name": "Mobile App"},
-                "website": {"id": 4, "slug": "website", "name": "Website"},
-                "pricing_policy": {"id": 5, "slug": "pricing_policy", "name": "Pricing Policy"}
-            }
-            return categories.get(slug)
-        
-        result = await self.db.prepare("SELECT id, slug, name, description FROM complaint_categories WHERE slug = ?").bind(slug).first()
+        result = await self.fetchrow("SELECT id, slug, name, description FROM complaint_categories WHERE slug = $1", slug)
         return dict(result) if result else None
     
     # ========== Raw Posts Operations ==========
     
-    async def save_raw_post(self, fb_post_id: str, content: str = None, 
+    async def save_raw_post(self, fb_post_id: str, content: Optional[str] = None, 
                            reaction_count: int = 0, share_count: int = 0) -> int:
         """Save or update a raw post"""
-        if not self.is_d1_available:
-            # Check if post already exists
-            for post_id, post_data in self._raw_posts.items():
-                if post_data.get("fb_post_id") == fb_post_id:
-                    # Update existing post
-                    post_data.update({
-                        "content": content,
-                        "reaction_count": reaction_count,
-                        "share_count": share_count,
-                        "scraped_at": datetime.now().isoformat()
-                    })
-                    return post_id
-            
-            # Create new post
-            post_id = self._next_post_id
-            self._next_post_id += 1
-            self._raw_posts[post_id] = {
-                "id": post_id,
-                "fb_post_id": fb_post_id,
-                "content": content,
-                "reaction_count": reaction_count,
-                "share_count": share_count,
-                "scraped_at": datetime.now().isoformat()
-            }
-            return post_id
-        
-        # Try to get existing post
-        existing = await self.db.prepare("SELECT id FROM raw_posts WHERE fb_post_id = ?").bind(fb_post_id).first()
+        existing = await self.fetchrow("SELECT id FROM raw_posts WHERE fb_post_id = $1", fb_post_id)
         
         if existing:
-            # Update existing post
-            await self.db.execute("""
+            await self.execute("""
                 UPDATE raw_posts 
-                SET content = ?, reaction_count = ?, share_count = ?, scraped_at = CURRENT_TIMESTAMP
-                WHERE fb_post_id = ?
+                SET content = $1, reaction_count = $2, share_count = $3, scraped_at = CURRENT_TIMESTAMP
+                WHERE fb_post_id = $4
             """, content, reaction_count, share_count, fb_post_id)
             return existing["id"]
         else:
-            # Insert new post
-            result = await self.db.execute("""
+            result = await self.fetchval("""
                 INSERT INTO raw_posts (fb_post_id, content, reaction_count, share_count)
-                VALUES (?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4)
+                RETURNING id
             """, fb_post_id, content, reaction_count, share_count)
-            # Get the inserted ID
-            post = await self.db.prepare("SELECT id FROM raw_posts WHERE fb_post_id = ?").bind(fb_post_id).first()
-            return post["id"] if post else 0
+            return result
     
     async def get_raw_post_by_fb_id(self, fb_post_id: str) -> Optional[Dict[str, Any]]:
         """Get raw post by Facebook post ID"""
-        if not self.is_d1_available:
-            for post_data in self._raw_posts.values():
-                if post_data.get("fb_post_id") == fb_post_id:
-                    return post_data
-            return None
-        
-        result = await self.db.prepare("""
+        result = await self.fetchrow("""
             SELECT id, fb_post_id, content, reaction_count, share_count, scraped_at
             FROM raw_posts
-            WHERE fb_post_id = ?
-        """).bind(fb_post_id).first()
+            WHERE fb_post_id = $1
+        """, fb_post_id)
         
-        return dict(result) if result else None
+        if result:
+            return {
+                "id": result["id"],
+                "fb_post_id": result["fb_post_id"],
+                "content": result["content"],
+                "reaction_count": result["reaction_count"],
+                "share_count": result["share_count"],
+                "scraped_at": result["scraped_at"].isoformat() if result["scraped_at"] else None
+            }
+        return None
     
     # ========== Raw Comments Operations ==========
     
     async def save_raw_comment(self, fb_comment_id: str, post_id: int, 
-                              author_name: str = None, content: str = None,
-                              parent_comment_id: int = None) -> int:
+                              author_name: Optional[str] = None, content: Optional[str] = None,
+                              parent_comment_id: Optional[int] = None) -> int:
         """Save or update a raw comment"""
-        if not self.is_d1_available:
-            # Check if comment already exists
-            for comment_id, comment_data in self._raw_comments.items():
-                if comment_data.get("fb_comment_id") == fb_comment_id:
-                    # Update existing comment
-                    comment_data.update({
-                        "post_id": post_id,
-                        "author_name": author_name,
-                        "content": content,
-                        "parent_comment_id": parent_comment_id,
-                        "created_at": datetime.now().isoformat()
-                    })
-                    return comment_id
-            
-            # Create new comment
-            comment_id = self._next_comment_id
-            self._next_comment_id += 1
-            self._raw_comments[comment_id] = {
-                "id": comment_id,
-                "fb_comment_id": fb_comment_id,
-                "post_id": post_id,
-                "author_name": author_name,
-                "content": content,
-                "parent_comment_id": parent_comment_id,
-                "created_at": datetime.now().isoformat()
-            }
-            return comment_id
-        
-        # Try to get existing comment
-        existing = await self.db.prepare("SELECT id FROM raw_comments WHERE fb_comment_id = ?").bind(fb_comment_id).first()
+        existing = await self.fetchrow("SELECT id FROM raw_comments WHERE fb_comment_id = $1", fb_comment_id)
         
         if existing:
-            # Update existing comment
-            await self.db.execute("""
+            await self.execute("""
                 UPDATE raw_comments 
-                SET post_id = ?, author_name = ?, content = ?, parent_comment_id = ?, created_at = CURRENT_TIMESTAMP
-                WHERE fb_comment_id = ?
+                SET post_id = $1, author_name = $2, content = $3, parent_comment_id = $4, created_at = CURRENT_TIMESTAMP
+                WHERE fb_comment_id = $5
             """, post_id, author_name, content, parent_comment_id, fb_comment_id)
             return existing["id"]
         else:
-            # Insert new comment
-            await self.db.execute("""
+            result = await self.fetchval("""
                 INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id
             """, fb_comment_id, post_id, author_name, content, parent_comment_id)
-            # Get the inserted ID
-            comment = await self.db.prepare("SELECT id FROM raw_comments WHERE fb_comment_id = ?").bind(fb_comment_id).first()
-            return comment["id"] if comment else 0
+            return result
     
     async def get_raw_comments_by_post_id(self, post_id: int) -> List[Dict[str, Any]]:
         """Get all raw comments for a post"""
-        if not self.is_d1_available:
-            return [
-                comment_data for comment_data in self._raw_comments.values()
-                if comment_data.get("post_id") == post_id
-            ]
-        
-        results = await self.db.prepare("""
+        results = await self.fetch("""
             SELECT id, fb_comment_id, post_id, parent_comment_id, author_name, content, created_at
             FROM raw_comments
-            WHERE post_id = ?
+            WHERE post_id = $1
             ORDER BY created_at ASC
-        """).bind(post_id).all()
+        """, post_id)
         
-        return [dict(r) for r in results]
+        return [
+            {
+                "id": r["id"],
+                "fb_comment_id": r["fb_comment_id"],
+                "post_id": r["post_id"],
+                "parent_comment_id": r["parent_comment_id"],
+                "author_name": r["author_name"],
+                "content": r["content"],
+                "created_at": r["created_at"].isoformat() if r["created_at"] else None
+            }
+            for r in results
+        ]
     
     async def get_all_raw_comments(self, limit: int = 50, offset: int = 0) -> Dict[str, Any]:
         """Get all raw comments with pagination, including post info"""
-        if not self.is_d1_available:
-            all_comments = list(self._raw_comments.values())
-            total = len(all_comments)
-            paginated = all_comments[offset:offset + limit]
-            
-            # Add post info
-            for comment in paginated:
-                post_id = comment.get("post_id")
-                if post_id and post_id in self._raw_posts:
-                    comment["post"] = self._raw_posts[post_id]
-            
-            return {
-                "comments": paginated,
-                "total": total,
-                "limit": limit,
-                "offset": offset
-            }
+        total = await self.fetchval("SELECT COUNT(*) FROM raw_comments")
         
-        # Get total count
-        total_result = await self.db.prepare("SELECT COUNT(*) as count FROM raw_comments").first()
-        total = total_result["count"] if total_result else 0
-        
-        # Get paginated comments with post info
-        results = await self.db.prepare("""
+        results = await self.fetch("""
             SELECT rc.id, rc.fb_comment_id, rc.post_id, rc.parent_comment_id, 
                    rc.author_name, rc.content, rc.created_at,
                    rp.fb_post_id, rp.content as post_content, rp.reaction_count, rp.share_count
             FROM raw_comments rc
             LEFT JOIN raw_posts rp ON rc.post_id = rp.id
             ORDER BY rc.created_at DESC
-            LIMIT ? OFFSET ?
-        """).bind(limit, offset).all()
+            LIMIT $1 OFFSET $2
+        """, limit, offset)
         
         comments = []
         for r in results:
-            comment = dict(r)
+            comment = {
+                "id": r["id"],
+                "fb_comment_id": r["fb_comment_id"],
+                "post_id": r["post_id"],
+                "parent_comment_id": r["parent_comment_id"],
+                "author_name": r["author_name"],
+                "content": r["content"],
+                "created_at": r["created_at"].isoformat() if r["created_at"] else None
+            }
             comment["post"] = {
                 "fb_post_id": r.get("fb_post_id"),
                 "content": r.get("post_content"),
@@ -811,42 +710,12 @@ class Database:
     
     # ========== Processed Comments Operations ==========
     
-    async def save_processed_comment(self, raw_comment_id: int, translation_en: str = None,
-                                     category_slug: str = None, sentiment_slug: str = None,
-                                     threat_level_slug: str = None, confidence_score: float = None,
-                                     dialect: str = None, keywords: List[str] = None,
+    async def save_processed_comment(self, raw_comment_id: int, translation_en: Optional[str] = None,
+                                     category_slug: Optional[str] = None, sentiment_slug: Optional[str] = None,
+                                     threat_level_slug: Optional[str] = None, confidence_score: Optional[float] = None,
+                                     dialect: Optional[str] = None, keywords: Optional[List[str]] = None,
                                      is_reviewed: bool = False) -> int:
         """Save or update processed comment"""
-        if not self.is_d1_available:
-            # Check if processed comment already exists
-            for proc_id, proc_data in self._processed_comments.items():
-                if proc_data.get("raw_comment_id") == raw_comment_id:
-                    # Update existing
-                    proc_data.update({
-                        "translation_en": translation_en,
-                        "confidence_score": confidence_score,
-                        "dialect": dialect,
-                        "keywords": keywords or [],
-                        "is_reviewed": is_reviewed,
-                        "processed_at": datetime.now().isoformat()
-                    })
-                    return proc_id
-            
-            # Create new
-            proc_id = self._next_processed_id
-            self._next_processed_id += 1
-            self._processed_comments[proc_id] = {
-                "id": proc_id,
-                "raw_comment_id": raw_comment_id,
-                "translation_en": translation_en,
-                "confidence_score": confidence_score,
-                "dialect": dialect,
-                "keywords": keywords or [],
-                "is_reviewed": is_reviewed,
-                "processed_at": datetime.now().isoformat()
-            }
-            return proc_id
-        
         # Get reference IDs
         category_id = None
         if category_slug:
@@ -868,42 +737,32 @@ class Database:
         
         keywords_json = json.dumps(keywords or [])
         
-        # Check if processed comment already exists
-        existing = await self.db.prepare("SELECT id FROM processed_comments WHERE raw_comment_id = ?").bind(raw_comment_id).first()
+        existing = await self.fetchrow("SELECT id FROM processed_comments WHERE raw_comment_id = $1", raw_comment_id)
         
         if existing:
-            # Update existing
-            await self.db.execute("""
+            await self.execute("""
                 UPDATE processed_comments 
-                SET category_id = ?, sentiment_id = ?, threat_level_id = ?,
-                    translation_en = ?, confidence_score = ?, dialect = ?, keywords = ?,
-                    is_reviewed = ?, processed_at = CURRENT_TIMESTAMP
-                WHERE raw_comment_id = ?
+                SET category_id = $1, sentiment_id = $2, threat_level_id = $3,
+                    translation_en = $4, confidence_score = $5, dialect = $6, keywords = $7,
+                    is_reviewed = $8, processed_at = CURRENT_TIMESTAMP
+                WHERE raw_comment_id = $9
             """, category_id, sentiment_id, threat_level_id, translation_en, 
-                confidence_score, dialect, keywords_json, 1 if is_reviewed else 0, raw_comment_id)
+                confidence_score, dialect, keywords_json, is_reviewed, raw_comment_id)
             return existing["id"]
         else:
-            # Insert new
-            await self.db.execute("""
+            result = await self.fetchval("""
                 INSERT INTO processed_comments 
                 (raw_comment_id, category_id, sentiment_id, threat_level_id,
                  translation_en, confidence_score, dialect, keywords, is_reviewed)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                RETURNING id
             """, raw_comment_id, category_id, sentiment_id, threat_level_id,
-                translation_en, confidence_score, dialect, keywords_json, 1 if is_reviewed else 0)
-            # Get the inserted ID
-            proc = await self.db.prepare("SELECT id FROM processed_comments WHERE raw_comment_id = ?").bind(raw_comment_id).first()
-            return proc["id"] if proc else 0
+                translation_en, confidence_score, dialect, keywords_json, is_reviewed)
+            return result
     
     async def get_processed_comments(self, limit: int = 100, offset: int = 0,
                                     is_reviewed: Optional[bool] = None) -> List[Dict[str, Any]]:
         """Get processed comments with pagination"""
-        if not self.is_d1_available:
-            results = list(self._processed_comments.values())
-            if is_reviewed is not None:
-                results = [r for r in results if r.get("is_reviewed") == is_reviewed]
-            return results[offset:offset + limit]
-        
         query = """
             SELECT pc.id, pc.raw_comment_id, pc.category_id, pc.sentiment_id, pc.threat_level_id,
                    pc.translation_en, pc.confidence_score, pc.dialect, pc.keywords,
@@ -919,18 +778,20 @@ class Database:
         
         params = []
         if is_reviewed is not None:
-            query += " WHERE pc.is_reviewed = ?"
-            params.append(1 if is_reviewed else 0)
+            query += " WHERE pc.is_reviewed = $1"
+            params.append(is_reviewed)
+            query += " ORDER BY pc.processed_at DESC LIMIT $2 OFFSET $3"
+            params.extend([limit, offset])
+        else:
+            query += " ORDER BY pc.processed_at DESC LIMIT $1 OFFSET $2"
+            params.extend([limit, offset])
         
-        query += " ORDER BY pc.processed_at DESC LIMIT ? OFFSET ?"
-        params.extend([limit, offset])
-        
-        results = await self.db.prepare(query).bind(*params).all()
+        results = await self.fetch(query, *params)
         
         return [
             {
                 **dict(r),
-                "keywords": json.loads(r["keywords"]) if r["keywords"] else []
+                "keywords": r["keywords"] if r["keywords"] else []
             }
             for r in results
         ]
@@ -1048,17 +909,30 @@ def get_database() -> Database:
     return _db_instance
 
 
-def init_database(db=None) -> Database:
+async def init_database(database_url: Optional[str] = None) -> Database:
     """
     Initialize database instance
     
     Args:
-        db: D1 database binding from Cloudflare Workers (or None for local dev)
+        database_url: PostgreSQL connection URL (if None, taken from DATABASE_URL env var)
     
     Returns:
         Database instance
     """
     global _db_instance
-    _db_instance = Database(db)
+    
+    if database_url is None:
+        database_url = os.getenv("DATABASE_URL")
+    
+    if not database_url:
+        raise ValueError("DATABASE_URL must be provided or set as environment variable")
+    
+    pool = await asyncpg.create_pool(
+        database_url,
+        min_size=1,
+        max_size=10,
+        command_timeout=60
+    )
+    
+    _db_instance = Database(pool)
     return _db_instance
-

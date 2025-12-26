@@ -100,6 +100,9 @@ class GeminiClient:
         
         model = model or self.default_model
 
+        if genai is None:
+            raise ValueError("google-genai package is not installed")
+        
         try:
             response = self.client.models.generate_content(
                 model=model,
@@ -111,6 +114,10 @@ class GeminiClient:
             
             logger.info(f"Content successfully generated. Model: {model}")
             logger.info(f"Response: {response.text}")
+            
+            if response.text is None:
+                raise ValueError("Empty response from Gemini API")
+            
             return response.text
             
         except Exception as e:

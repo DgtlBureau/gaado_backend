@@ -4,7 +4,6 @@ Simplified version without ChromaDB dependencies
 """
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, HTMLResponse
-from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 import logging
@@ -12,19 +11,13 @@ import sys
 import os
 import json
 from datetime import datetime
+from dotenv import load_dotenv
 from gemini.gemini_client import GeminiClient
-from database import init_database, get_database
+# from database import init_database, get_database
 from feed import router as feed_router
 
-# Cloudflare Workers imports
-try:
-    from workers import WorkerEntrypoint
-    import asgi
-    IS_CLOUDFLARE_WORKERS = True
-except ImportError:
-    IS_CLOUDFLARE_WORKERS = False
-    WorkerEntrypoint = None
-    asgi = None
+# Load environment variables from .env file
+load_dotenv()
 
 
 # Configure logging - DEBUG level for debugging
@@ -46,81 +39,56 @@ app = FastAPI(
 )
 
 
-# Initialize database on startup (with None binding for local dev)
-# In Cloudflare Workers, D1 binding will be set via middleware
-init_database(None)
-
-
-# Middleware to set D1 database binding from Cloudflare Workers environment
-class DatabaseMiddleware(BaseHTTPMiddleware):
-    """Middleware to inject D1 database binding from Cloudflare Workers env"""
-    
-    async def dispatch(self, request: Request, call_next):
-        # In Cloudflare Workers, env is available in request scope
-        # Try to get D1 binding from request state or environment
-        db_binding = None
-        
-        # Check if we're in Cloudflare Workers environment
-        # D1 binding is typically available as env.DB in Workers
-        # For FastAPI on Workers, it's in request.scope['env']
-        try:
-            # Try to get from request scope (Cloudflare Workers pattern)
-            if hasattr(request, 'scope') and 'env' in request.scope:
-                env = request.scope.get('env', {})
-                db_binding = env.get('DB') if isinstance(env, dict) else getattr(env, 'DB', None)
-            # Alternative: check request.state
-            elif hasattr(request.state, 'env'):
-                db_binding = getattr(request.state.env, 'DB', None)
-        except Exception as e:
-            logger.debug(f"Could not get D1 binding from request: {e}")
-        
-        # Update database instance if we have a binding and it's different
-        if db_binding is not None:
-            from database import _db_instance
-            if _db_instance is None or not _db_instance.is_d1_available or _db_instance.db != db_binding:
-                init_database(db_binding)
-                # Schema initialization happens in startup_event, not here
-        
-        response = await call_next(request)
-        return response
-
-
-# Add middleware
-app.add_middleware(DatabaseMiddleware)
 
 # Include routers
 app.include_router(feed_router)
 
 
-# Initialize schema on startup (will use in-memory if D1 not available)
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database schema on application startup"""
-    db = get_database()
-    await db.init_schema()
-    logger.info("Database initialized successfully")
-    
-    # Insert mock data if database is empty
-    try:
-        comments_data = await db.get_all_raw_comments(limit=1, offset=0)
-        if comments_data.get("total", 0) == 0:
-            logger.info("Database is empty, inserting mock data...")
-            result = await db.insert_mock_data()
-            logger.info(f"Mock data inserted: {result.get('comments_inserted', 0)} comments")
-    except Exception as e:
-        logger.warning(f"Could not check/insert mock data: {e}")
+# Initialize database on startup
+# @app.on_event("startup")
+# async def startup_event():
+#     """Initialize database connection and schema on application startup"""
+#     try:
+#         await init_database()
+#         db = get_database()
+#         await db.init_schema()
+#         logger.info("Database initialized successfully")
+#         
+#         # Insert mock data if database is empty
+#         try:
+#             comments_data = await db.get_all_raw_comments(limit=1, offset=0)
+#             if comments_data.get("total", 0) == 0:
+#                 logger.info("Database is empty, inserting mock data...")
+#                 result = await db.insert_mock_data()
+#                 logger.info(f"Mock data inserted: {result.get('comments_inserted', 0)} comments")
+#         except Exception as e:
+#             logger.warning(f"Could not check/insert mock data: {e}")
+#     except Exception as e:
+#         logger.error(f"Failed to initialize database: {e}")
+#         raise
 
 
-@app.post("/api/mock-data/insert")
-async def insert_mock_data():
-    """Insert mock comments data into the database"""
-    try:
-        db = get_database()
-        result = await db.insert_mock_data()
-        return JSONResponse(content=result)
-    except Exception as e:
-        logger.error(f"Error inserting mock data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     """Close database connections on shutdown"""
+#     try:
+#         db = get_database()
+#         await db.close()
+#         logger.info("Database connections closed")
+#     except Exception as e:
+#         logger.warning(f"Error closing database: {e}")
+
+
+# @app.post("/api/mock-data/insert")
+# async def insert_mock_data():
+#     """Insert mock comments data into the database"""
+#     try:
+#         db = get_database()
+#         result = await db.insert_mock_data()
+#         return JSONResponse(content=result)
+#     except Exception as e:
+#         logger.error(f"Error inserting mock data: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 class ScrapedData(BaseModel):
@@ -145,9 +113,9 @@ class GeminiChatRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def root():
     """Main page with service information"""
-    db = get_database()
+    # db = get_database()
     # Get latest scraping result
-    last_scraping_result = await db.get_latest_scraping_result()
+    # last_scraping_result = await db.get_latest_scraping_result()
     
     html_content = """
     <!DOCTYPE html>
@@ -740,13 +708,14 @@ async def root():
 @app.get("/api/feed")
 async def get_feed(limit: int = Query(default=50, ge=1, le=200), offset: int = Query(default=0, ge=0)):
     """Get feed of comments from database with pagination"""
-    try:
-        db = get_database()
-        result = await db.get_all_raw_comments(limit=limit, offset=offset)
-        return result
-    except Exception as e:
-        logger.error(f"Error getting feed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error getting feed: {str(e)}")
+    # try:
+    #     db = get_database()
+    #     result = await db.get_all_raw_comments(limit=limit, offset=offset)
+    #     return result
+    # except Exception as e:
+    #     logger.error(f"Error getting feed: {e}", exc_info=True)
+    #     raise HTTPException(status_code=500, detail=f"Error getting feed: {str(e)}")
+    return {"message": "Database is temporarily disabled", "data": [], "total": 0}
 
 
 
@@ -764,18 +733,7 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
     """
     try:
         # Get API key from environment variable
-        # In Cloudflare Workers, env is available in request.scope['env']
-        gemini_api_key = None
-        if hasattr(req, 'scope') and 'env' in req.scope:
-            env = req.scope.get('env', {})
-            if isinstance(env, dict):
-                gemini_api_key = env.get('GEMINI_API_KEY')
-            else:
-                gemini_api_key = getattr(env, 'GEMINI_API_KEY', None)
-        
-        # Fallback to os.getenv for local development
-        if not gemini_api_key:
-            gemini_api_key = os.getenv("GEMINI_API_KEY")
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
         
         # Create client with API key
         client = GeminiClient(api_key=gemini_api_key)
@@ -814,8 +772,3 @@ async def http_exception_handler(request, exc):
     )
 
 
-# Cloudflare Workers entrypoint
-if IS_CLOUDFLARE_WORKERS:
-    class Default(WorkerEntrypoint):
-        async def fetch(self, request):
-            return await asgi.fetch(app, request, self.env)
