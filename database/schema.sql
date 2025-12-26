@@ -1,135 +1,98 @@
--- Cloudflare D1 Database Schema for Gaado Backend
+-- PostgreSQL Database Schema for Gaado Backend
 -- This schema is automatically created by the application, but can be used for manual setup
 
 -- ==========================================
--- ЧАСТЬ 1: СТРУКТУРА (DDL)
+-- PART 1: STRUCTURE (DDL)
 -- ==========================================
 
--- Включаем поддержку внешних ключей (на всякий случай, в D1 это обычно по дефолту)
-PRAGMA foreign_keys = ON;
-
--- Documents table for storing text documents
-CREATE TABLE IF NOT EXISTS documents (
-    id TEXT PRIMARY KEY,
-    text TEXT NOT NULL,
-    metadata TEXT,  -- JSON string
-    created_at TEXT NOT NULL
-);
-
--- Scraping results table for Facebook scraping data
-CREATE TABLE IF NOT EXISTS scraping_results (
-    result_id TEXT PRIMARY KEY,
-    page_username TEXT,
-    url TEXT,
-    data TEXT NOT NULL,  -- JSON string with full result data
-    fetched_at TEXT NOT NULL,
-    saved_at TEXT NOT NULL,
-    total_count INTEGER DEFAULT 0,
-    duration_seconds REAL
-);
-
--- Scraping status table for tracking scraping operations
-CREATE TABLE IF NOT EXISTS scraping_status (
-    result_id TEXT PRIMARY KEY,
-    status TEXT NOT NULL,
-    url TEXT,
-    started_at TEXT NOT NULL,
-    completed_at TEXT,
-    duration_seconds REAL,
-    comments_count INTEGER DEFAULT 0,
-    method TEXT,
-    success INTEGER DEFAULT 0,  -- SQLite boolean (0/1)
-    FOREIGN KEY (result_id) REFERENCES scraping_results(result_id)
-);
-
--- 1. Пользователи (Админы)
--- Источник: [cite: 33]
+-- 1. Users (Admins)
+-- Source: [cite: 33]
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     session_token TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Справочник: Уровни угрозы (Threat Levels)
--- Источник: [cite: 82]
+-- 2. Reference: Threat Levels
+-- Source: [cite: 82]
 CREATE TABLE IF NOT EXISTS threat_levels (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     slug TEXT UNIQUE NOT NULL,      -- 'nominal', 'elevated', 'critical'
     name TEXT NOT NULL,             -- 'Nominal', 'Elevated', 'Critical'
-    color_code TEXT,                -- '#10B981' (для UI Shadcn)
+    color_code TEXT,                -- '#10B981' (for UI Shadcn)
     description TEXT
 );
 
--- 3. Справочник: Категории жалоб (Taxonomy)
--- Источник: [cite: 37, 38]
+-- 3. Reference: Complaint Categories (Taxonomy)
+-- Source: [cite: 37, 38]
 CREATE TABLE IF NOT EXISTS complaint_categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     slug TEXT UNIQUE NOT NULL,      -- 'mobile_app', 'pricing_policy'
     name TEXT NOT NULL,             -- 'Mobile App', 'Pricing Policy'
     description TEXT
 );
 
--- 4. Справочник: Тональность (Sentiment)
--- Источник: [cite: 39]
+-- 4. Reference: Sentiment Types
+-- Source: [cite: 39]
 CREATE TABLE IF NOT EXISTS sentiment_types (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     slug TEXT UNIQUE NOT NULL,      -- 'friendly', 'anxious', 'angry'
     name TEXT NOT NULL
 );
 
--- 5. Сырые посты (Raw Posts)
--- Источник: [cite: 34]
+-- 5. Raw Posts
+-- Source: [cite: 34]
 CREATE TABLE IF NOT EXISTS raw_posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fb_post_id TEXT UNIQUE NOT NULL, -- Уникальный ID из Facebook
-    content TEXT,                    -- Текст поста
+    id SERIAL PRIMARY KEY,
+    fb_post_id TEXT UNIQUE NOT NULL, -- Unique ID from Facebook
+    content TEXT,                    -- Post text
     reaction_count INTEGER DEFAULT 0,
     share_count INTEGER DEFAULT 0,
-    scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 6. Сырые комментарии (Raw Comments)
--- Источник: [cite: 35]
+-- 6. Raw Comments
+-- Source: [cite: 35]
 CREATE TABLE IF NOT EXISTS raw_comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     fb_comment_id TEXT UNIQUE NOT NULL,
-    post_id INTEGER NOT NULL,          -- Ссылка на родительский пост
-    parent_comment_id INTEGER,         -- Ссылка на родительский коммент (для веток ответов)
-    author_name TEXT,                  -- Имя автора (для отображения в UI)
-    content TEXT,                      -- Оригинальный текст на сомалийском
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    post_id INTEGER NOT NULL,          -- Reference to parent post
+    parent_comment_id INTEGER,         -- Reference to parent comment (for reply threads)
+    author_name TEXT,                  -- Author name (for UI display)
+    content TEXT,                      -- Original text in Somali
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    -- Связи
+    -- Foreign keys
     FOREIGN KEY (post_id) REFERENCES raw_posts(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_comment_id) REFERENCES raw_comments(id) ON DELETE SET NULL
 );
 
--- 7. Обработанные данные (Processed Intelligence)
--- Источник: [cite: 36]
+-- 7. Processed Data (Processed Intelligence)
+-- Source: [cite: 36]
 CREATE TABLE IF NOT EXISTS processed_comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     
-    -- СВЯЗЬ 1-К-1: Ссылка на сырой комментарий
-    -- UNIQUE гарантирует, что у одного сырого коммента только одна аналитика
+    -- ONE-TO-ONE RELATIONSHIP: Reference to raw comment
+    -- UNIQUE ensures that one raw comment has only one analytics record
     raw_comment_id INTEGER NOT NULL UNIQUE,
     
-    -- Ссылки на справочники (Нормализация)
+    -- References to reference tables (Normalization)
     category_id INTEGER,
     sentiment_id INTEGER,
     threat_level_id INTEGER,
     
-    -- Результаты работы AI
-    translation_en TEXT,               -- Перевод на английский
-    confidence_score REAL,             -- Вероятность (например, 0.98)
-    dialect TEXT,                      -- 'Maxa-tiri' или 'Maay' [cite: 36]
-    keywords JSON,                     -- Список слов: ["scam", "error"]
+    -- AI processing results
+    translation_en TEXT,               -- English translation
+    confidence_score REAL,             -- Probability (e.g., 0.98)
+    dialect TEXT,                      -- 'Maxa-tiri' or 'Maay' [cite: 36]
+    keywords JSONB,                    -- List of words: ["scam", "error"]
     
-    -- Статус проверки человеком (Human-in-the-loop)
-    is_reviewed BOOLEAN DEFAULT 0,
-    processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Human review status (Human-in-the-loop)
+    is_reviewed BOOLEAN DEFAULT FALSE,
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    -- Внешние ключи
+    -- Foreign keys
     FOREIGN KEY (raw_comment_id) REFERENCES raw_comments(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES complaint_categories(id),
     FOREIGN KEY (sentiment_id) REFERENCES sentiment_types(id),
@@ -137,50 +100,189 @@ CREATE TABLE IF NOT EXISTS processed_comments (
 );
 
 -- ==========================================
--- ЧАСТЬ 2: НАПОЛНЕНИЕ ДАННЫМИ (SEED DATA)
+-- PART 2: SEED DATA
 -- ==========================================
 
--- 1. Заполняем Threat Levels [cite: 82]
-INSERT OR IGNORE INTO threat_levels (slug, name, color_code) VALUES 
-('nominal', 'Nominal', '#10B981'),    -- Зеленый (Спокойно)
-('elevated', 'Elevated', '#F59E0B'),  -- Оранжевый (Требует внимания)
-('critical', 'Critical', '#EF4444');  -- Красный (Алерт!)
+-- 1. Populate Threat Levels [cite: 82]
+INSERT INTO threat_levels (slug, name, color_code) VALUES 
+('nominal', 'Nominal', '#10B981'),    -- Green (Calm)
+('elevated', 'Elevated', '#F59E0B'),  -- Orange (Requires attention)
+('critical', 'Critical', '#EF4444')  -- Red (Alert!)
+ON CONFLICT (slug) DO NOTHING;
 
--- 2. Заполняем Sentiment Types [cite: 39]
-INSERT OR IGNORE INTO sentiment_types (slug, name) VALUES 
+-- 2. Populate Sentiment Types [cite: 39]
+INSERT INTO sentiment_types (slug, name) VALUES 
 ('friendly', 'Friendly'),
 ('anxious', 'Anxious'),
-('angry', 'Angry');
+('angry', 'Angry')
+ON CONFLICT (slug) DO NOTHING;
 
--- 3. Заполняем Complaint Categories [cite: 38]
-INSERT OR IGNORE INTO complaint_categories (slug, name) VALUES 
+-- 3. Populate Complaint Categories [cite: 38]
+INSERT INTO complaint_categories (slug, name) VALUES 
 ('support_service', 'Support Service'),
 ('offline_branch', 'Offline Branch'),
 ('mobile_app', 'Mobile App'),
 ('website', 'Website'),
-('pricing_policy', 'Pricing Policy');
+('pricing_policy', 'Pricing Policy')
+ON CONFLICT (slug) DO NOTHING;
 
--- 4. Создаем тестового админа (опционально)
-INSERT OR IGNORE INTO users (email) VALUES ('admin@gaado.bank');
+-- 4. Create test admin (optional)
+INSERT INTO users (email) VALUES ('admin@gaado.bank')
+ON CONFLICT (email) DO NOTHING;
+
+-- 5. Insert mock test data (raw posts, raw comments, and processed comments)
+-- Source: database.py lines 807-848
+
+-- Create mock post
+INSERT INTO raw_posts (fb_post_id, content, reaction_count, share_count) VALUES 
+('mock_post_001', 'Mock Premier Bank Post for Testing', 0, 0)
+ON CONFLICT (fb_post_id) DO NOTHING;
+
+-- Insert raw comments
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_001',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 1',
+    'Hhhh xayeysiin aa Hees cml udhagaystay xayeysiin Raab ah Faraska Madow waxuu la cadaan wayey hal abuur waye',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_001');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_002',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 2',
+    'Waa bankiga kaliya ee dadkiisa cilada heesato ku xaliyo ka wada bax dib usoo bilaaw tirtir ee dib usoo daji',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_002');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_003',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 3',
+    'Maalinka aad deposit ATM aduunka laga samen karo aad kentaan ayaad top 1 noqondontaan',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_003');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_004',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 4',
+    'Premier Bank Wah Xaaladiina Xayeysiiska inta may maroysaa Okei dhib ma lehee teamka Xayeysiinta idin Sameysey Jeebka ma u qoyseen ama qado ley u dalab teen Masaakiinta BaL Clip HaLaga soo duuwo ayagoo Shilimaadkooda la siinaayo si VAR-KA aynu u xaqiijino',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_004');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_005',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 5',
+    'Bangiga kaliya Cilada ku heysato ku xaliyo cilad kale',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_005');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_006',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 6',
+    'Hadaan heestan xiftiyo tolow card bilaash ah ma leeyahay',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_006');
+
+INSERT INTO raw_comments (fb_comment_id, post_id, author_name, content, parent_comment_id)
+SELECT 
+    'mock_comment_007',
+    (SELECT id FROM raw_posts WHERE fb_post_id = 'mock_post_001'),
+    'Mock User 7',
+    'Aad baa u xayeesiin badan tihiin, aadna waad u liidataam!',
+    NULL
+WHERE NOT EXISTS (SELECT 1 FROM raw_comments WHERE fb_comment_id = 'mock_comment_007');
+
+-- Insert processed comments
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_001'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'Hahaha, I listened to an advertisement that was like a song, a Rap advertisement. Black Horse couldn''t make it clear, it is creativity.',
+    0.95,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_001'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_002'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'It''s the only bank that solves its customers'' technical issues by telling them to log out, restart, delete, and reinstall.',
+    0.95,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_002'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_003'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'The day you introduce international ATM deposits [deposits that can be done from the world], you will become number one.',
+    0.98,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_003'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_004'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'Premier Bank, what is the situation? Is this the extent of the advertising? Okay, no problem, but did you pay [wet the pockets of] the team that made the ad for you, or did you just order them lunch? The poor things, let a clip be filmed of them being paid their money so we can verify it via VAR.',
+    0.95,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_004'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_005'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'The only bank that solves the problem facing it with another problem.',
+    0.95,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_005'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_006'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'If I memorize this song, I wonder if I get a free card.',
+    0.98,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_006'));
+
+INSERT INTO processed_comments (raw_comment_id, threat_level_id, translation_en, confidence_score, dialect, keywords, is_reviewed)
+SELECT 
+    (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_007'),
+    (SELECT id FROM threat_levels WHERE slug = 'nominal'),
+    'You advertise very much, and you are very weak [incompetent]!',
+    0.99,
+    'Maxa-tiri',
+    '[]'::JSONB,
+    FALSE
+WHERE NOT EXISTS (SELECT 1 FROM processed_comments WHERE raw_comment_id = (SELECT id FROM raw_comments WHERE fb_comment_id = 'mock_comment_007'));
 
 -- ==========================================
--- ЧАСТЬ 3: ИНДЕКСЫ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ
+-- PART 3: PERFORMANCE INDEXES
 -- ==========================================
-
-CREATE INDEX IF NOT EXISTS idx_documents_created_at 
-ON documents(created_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_scraping_results_fetched_at 
-ON scraping_results(fetched_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_scraping_results_page_username 
-ON scraping_results(page_username);
-
-CREATE INDEX IF NOT EXISTS idx_scraping_status_status 
-ON scraping_status(status);
-
-CREATE INDEX IF NOT EXISTS idx_scraping_status_started_at 
-ON scraping_status(started_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_complaint_categories_slug 
 ON complaint_categories(slug);

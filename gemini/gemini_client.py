@@ -38,25 +38,13 @@ class GeminiClient:
             api_key: API key for Gemini (if not provided, taken from GEMINI_API_KEY env var)
             default_model: Default model name (if not provided, uses DEFAULT_MODEL constant)
         """
-        logger.info("=" * 80)
-        logger.info("GEMINI CLIENT INIT - Starting initialization")
-        logger.info("=" * 80)
-        
         # Get API key: first from parameter, then from environment variable
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         self.default_model = default_model or self.DEFAULT_MODEL
         self.instruction = self.SYSTEM_INSTRUCTION
         
-        logger.info(f"API key parameter provided: {api_key is not None}")
-        logger.info(f"GEMINI_API_KEY from environment: {'SET' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}")
-        logger.info(f"API key being used: {'SET' if self.api_key else 'NOT SET'}")
-        if self.api_key:
-            logger.info(f"API key length: {len(self.api_key)} characters")
-            logger.info(f"API key prefix: {self.api_key[:10]}...")
-        
         if not self.api_key:
             logger.error("GEMINI_API_KEY is not set!")
-            logger.error("API key must be provided via api_key parameter or set in GEMINI_API_KEY environment variable")
             self.client = None
             return
         
@@ -68,15 +56,10 @@ class GeminiClient:
             logger.info("Creating genai.Client with explicit api_key parameter...")
             # Pass API key explicitly via api_key parameter
             self.client = genai.Client(api_key=self.api_key)
-            logger.info(f"✓ Gemini client successfully initialized!")
-            logger.info(f"  Default model: {self.default_model}")
-            logger.info(f"  Client created: {self.client is not None}")
-            logger.info("=" * 80)
+            logger.info(f"Gemini client initialized. Model: {self.default_model}")
         except Exception as e:
-            logger.error(f"✗ Error initializing Gemini client: {e}", exc_info=True)
-            logger.error(f"Error type: {type(e).__name__}")
+            logger.error(f"Error initializing Gemini client: {e}", exc_info=True)
             self.client = None
-            logger.info("=" * 80)
     
     def generate_content(
         self,
@@ -112,9 +95,6 @@ class GeminiClient:
                 )
             )
             
-            logger.info(f"Content successfully generated. Model: {model}")
-            logger.info(f"Response: {response.text}")
-            
             if response.text is None:
                 raise ValueError("Empty response from Gemini API")
             
@@ -145,23 +125,12 @@ class GeminiClient:
         if not self.client:
             raise ValueError("Gemini client is not initialized. Check GEMINI_API_KEY.")
         
-        logger.info("=" * 80)
-        logger.info("GEMINI CHAT REQUEST")
-        logger.info("=" * 80)
-        logger.info(f"User prompt: {user_prompt}")
-        logger.info(f"Model: {model or self.default_model}")
-        logger.info(f"System instruction: {self.instruction}")
-        logger.info("-" * 80)
-        
         # The system instruction is automatically applied via GenerateContentConfig
         # User prompt is sent as contents
         response = self.generate_content(
             contents=user_prompt,
             model=model
         )
-        
-        logger.info(f"Response received: {response}")
-        logger.info("=" * 80)
         
         return response
     

@@ -1,11 +1,13 @@
 """
-Feed module for displaying comments feed
+Comments module for displaying processed comments from Supabase
+Uses database_api.py for Supabase operations
 """
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query
 from fastapi.responses import HTMLResponse
 from datetime import datetime
 import logging
-from database import get_database
+from database.database_api import get_latest_comments
+from database.database import get_database
 
 logger = logging.getLogger(__name__)
 
@@ -24,25 +26,20 @@ def escape_html(text: str) -> str:
             .replace("'", "&#x27;"))
 
 
-@router.get("/feed", response_class=HTMLResponse)
-async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Query(default=0, ge=0)):
-    """Feed page with all comments from database in LIVE FEED style"""
-    db = get_database()
-    feed_data = await db.get_all_raw_comments(limit=limit, offset=offset)
-    
-    # Get processed comments for categories and sentiment
-    # Map by raw_comment_id (which is the id from raw_comments table)
-    processed_comments_map = {}
+@router.get("/comments", response_class=HTMLResponse)
+def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Query(default=0, ge=0)):
+    """Comments page with processed comments from Supabase"""
     try:
-        # Get all processed comments and map them by raw_comment_id
-        processed = await db.get_processed_comments(limit=10000, offset=0)
-        for pc in processed:
-            raw_comment_id = pc.get("raw_comment_id")
-            if raw_comment_id:
-                processed_comments_map[raw_comment_id] = pc
+        # Get processed comments from Supabase (already includes joined data)
+        comments_data = get_latest_comments(limit=limit, offset=offset, is_reviewed=None)
+        
+        # Use the flattened data directly
+        total = len(comments_data)  # Approximate total (could be improved with count query)
+        
     except Exception as e:
-        logger.debug(f"Could not load processed comments: {e}")
-        pass
+        logger.error(f"Error loading comments: {e}")
+        comments_data = []
+        total = 0
     
     html_content = """
     <!DOCTYPE html>
@@ -50,7 +47,7 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>LIVE FEED - Gaado Backend</title>
+        <title>COMMENTS - Gaado Backend</title>
         <style>
             * {
                 margin: 0;
@@ -359,11 +356,11 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
     <body>
         <div class="header">
             <div class="header-left">
-                <h1>LIVE FEED</h1>
+                <h1>COMMENTS</h1>
                 <div class="monitoring">Monitoring: Premier Bank Official Page</div>
                 <div class="nav-links">
                     <a href="/" class="nav-link">Home</a>
-                    <a href="/feed" class="nav-link active">Feed</a>
+                    <a href="/comments" class="nav-link active">Feed</a>
                 </div>
             </div>
         </div>
@@ -371,8 +368,7 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
         <div class="feed-container" id="feed-container">
     """
     
-    comments = feed_data.get("comments", [])
-    if not comments:
+    if not comments_data:
         html_content += """
             <div class="empty-state">
                 <h2>📭 No comments found</h2>
@@ -380,21 +376,21 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
             </div>
         """
     else:
-        comment_index = feed_data.get("total", 0) - feed_data.get("offset", 0)
-        for comment in comments:
+        comment_index = total - offset
+        for comment in comments_data:
             comment_id = comment.get("id", 0)
             author = comment.get("author_name") or f"User_{comment_id}"
             content = comment.get("content") or ""
             created_at = comment.get("created_at") or ""
             
-            # Get processed comment data (map by raw_comment_id which equals comment_id)
-            processed = processed_comments_map.get(comment_id, {})
-            category_name = processed.get("category_name") or "General"
-            category_slug = processed.get("category_slug") or "general"
-            sentiment_slug = processed.get("sentiment_slug") or ""
-            threat_level_slug = processed.get("threat_level_slug") or ""
-            translation = processed.get("translation_en") or ""
-            dialect = processed.get("dialect") or ""
+            category_name = comment.get("category_name") or "General"
+            category_slug = comment.get("category_slug") or "general"
+            sentiment_slug = comment.get("sentiment_slug") or ""
+            threat_level_slug = comment.get("threat_level_slug") or ""
+            threat_level_color = comment.get("threat_level_color") or "#10B981"
+            translation = comment.get("translation_en") or ""
+            dialect = comment.get("dialect") or ""
+            confidence_score = comment.get("confidence_score", 0.0)
             
             # Format date
             time_str = ""
@@ -407,12 +403,14 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
                     logger.debug(f"Could not parse date: {e}")
                     pass
             
-            # Determine category color
+            # Determine category color based on threat level
             category_color = "orange"
-            if sentiment_slug == "friendly" or ("positive" in category_slug.lower()):
+            if threat_level_slug == "nominal":
                 category_color = "green"
-            elif threat_level_slug == "critical" or ("lost" in category_slug.lower() or "dispute" in category_slug.lower()):
+            elif threat_level_slug == "critical":
                 category_color = "red"
+            elif sentiment_slug == "friendly":
+                category_color = "green"
             
             # Highlight keywords (simple keyword detection)
             highlighted_content = escape_html(content)
@@ -441,6 +439,11 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
             if translation:
                 translation_html = f'<div class="translation-text"><div class="translation-label">English Translation:</div>{escape_html(translation)}</div>'
             
+            # Confidence score badge
+            confidence_html = ""
+            if confidence_score:
+                confidence_html = f'<div class="language-tag">Confidence: {confidence_score:.0%}</div>'
+            
             html_content += f"""
             <div class="comment-entry">
                 <div class="user-badge">
@@ -467,18 +470,18 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
                         </button>
                     </div>
                     <div class="language-tag">Detected language: {language}</div>
+                    {confidence_html}
                 </div>
                 <div class="category-badge">
-                    <div class="category-btn {category_color}">{category_name.replace('_', ' ').title()}</div>
+                    <div class="category-btn {category_color}" style="background-color: {threat_level_color};">{category_name.replace('_', ' ').title()}</div>
                 </div>
             </div>
             """
             comment_index -= 1
     
     # Pagination
-    total = feed_data.get("total", 0)
-    current_limit = feed_data.get("limit", 50)
-    current_offset = feed_data.get("offset", 0)
+    current_limit = limit
+    current_offset = offset
     current_page = (current_offset // current_limit) + 1
     total_pages = (total + current_limit - 1) // current_limit if total > 0 else 1
     
@@ -496,7 +499,7 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
     
     html_content += f"""
             <span class="pagination-info">
-                Page {current_page} of {total_pages} (showing {len(comments)} of {total})
+                Page {current_page} of {total_pages} (showing {len(comments_data)} of {total})
             </span>
     """
     
@@ -506,20 +509,20 @@ async def feed_page(limit: int = Query(default=50, ge=1, le=200), offset: int = 
     else:
         html_content += '<button disabled>Next →</button>'
     
-    html_content += """
+    html_content += f"""
         </div>
         
         <script>
-            function loadPage(offset) {
-                window.location.href = `/feed?offset=${offset}&limit=""" + str(current_limit) + """`;
-            }
+            function loadPage(offset) {{
+                window.location.href = `/comments?offset=${{offset}}&limit={current_limit}`;
+            }}
             
             // Auto-refresh every 30 seconds
-            setTimeout(() => {
-                if (document.visibilityState === 'visible') {
+            setTimeout(() => {{
+                if (document.visibilityState === 'visible') {{
                     window.location.reload();
-                }
-            }, 30000);
+                }}
+            }}, 30000);
         </script>
     </body>
     </html>

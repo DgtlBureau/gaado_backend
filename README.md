@@ -8,14 +8,7 @@ FastAPI application for processing scraped data. Prepared for deployment on Clou
 gaado_backend/
 ├── main.py                          # Main FastAPI application
 ├── requirements.txt                 # Full Python dependencies
-├── requirements_simple.txt          # Minimal dependencies (no HF/ChromaDB)
 ├── README.md                        # This file
-├── chromadb/                        # ChromaDB module
-│   ├── chroma_client.py             # ChromaDB client (optional)
-│   └── CHROMADB_SETUP.md            # ChromaDB setup guide
-├── cloudflare/                      # Cloudflare Workers module
-│   ├── wrangler.toml                # Cloudflare Workers configuration
-│   └── CLOUDFLARE_WORKERS_SETUP.md  # Cloudflare Workers setup guide
 └── playwright_docs/                 # Playwright documentation
     └── BROWSER_PARSING_SETUP.md     # Browser setup guide
 ```
@@ -139,6 +132,21 @@ wrangler tail
 
 ## Environment Variables
 
+### Required
+
+**PostgreSQL Database:**
+- `DATABASE_URL` - PostgreSQL connection URL (e.g., `postgresql://user:password@host:port/dbname`)
+- Or individual parameters:
+  - `user` or `DB_USER` - Database user
+  - `password` or `DB_PASSWORD` or `DATABASE_PSWRD` - Database password
+  - `host` or `DB_HOST` - Database host
+  - `port` or `DB_PORT` - Database port (default: 5432)
+  - `dbname` or `DB_NAME` or `DBNAME` - Database name
+
+**Supabase (for Storage and API):**
+- `SUPABASE_URL` - Supabase project URL (e.g., `https://xxxxx.supabase.co`)
+- `SUPABASE_KEY` - Supabase anon/service key (from Supabase dashboard)
+
 ### Optional (for external services)
 
 **ChromaDB (Local Development):**
@@ -150,6 +158,23 @@ wrangler tail
 **ChromaDB (Cloudflare Workers / Production):**
 - `CHROMA_API_URL` - ChromaDB Cloud or external server URL
 - `CHROMA_API_KEY` - API key for ChromaDB Cloud
+
+### Example .env file
+
+```env
+# PostgreSQL Database
+DATABASE_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
+# Or use individual parameters:
+# user=postgres
+# password=your_password
+# host=db.xxxxx.supabase.co
+# port=5432
+# dbname=postgres
+
+# Supabase
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_KEY=your_supabase_anon_or_service_key
+```
 
 ## Additional Documentation
 

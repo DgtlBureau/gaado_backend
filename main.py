@@ -13,8 +13,8 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from gemini.gemini_client import GeminiClient
-# from database import init_database, get_database
-from feed import router as feed_router
+from database.database import init_database, get_database
+from comments import router as comments_router
 
 # Load environment variables from .env file
 load_dotenv()
@@ -41,54 +41,25 @@ app = FastAPI(
 
 
 # Include routers
-app.include_router(feed_router)
-
+app.include_router(comments_router)
 
 # Initialize database on startup
-# @app.on_event("startup")
-# async def startup_event():
-#     """Initialize database connection and schema on application startup"""
-#     try:
-#         await init_database()
-#         db = get_database()
-#         await db.init_schema()
-#         logger.info("Database initialized successfully")
-#         
-#         # Insert mock data if database is empty
-#         try:
-#             comments_data = await db.get_all_raw_comments(limit=1, offset=0)
-#             if comments_data.get("total", 0) == 0:
-#                 logger.info("Database is empty, inserting mock data...")
-#                 result = await db.insert_mock_data()
-#                 logger.info(f"Mock data inserted: {result.get('comments_inserted', 0)} comments")
-#         except Exception as e:
-#             logger.warning(f"Could not check/insert mock data: {e}")
-#     except Exception as e:
-#         logger.error(f"Failed to initialize database: {e}")
-#         raise
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database connection on application startup"""
+    try:
+        # init_database() is synchronous and automatically connects via psycopg2 and initializes Supabase client
+        init_database()
+        logger.info("Database initialized successfully")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
+        raise
 
 
-# @app.on_event("shutdown")
-# async def shutdown_event():
-#     """Close database connections on shutdown"""
-#     try:
-#         db = get_database()
-#         await db.close()
-#         logger.info("Database connections closed")
-#     except Exception as e:
-#         logger.warning(f"Error closing database: {e}")
-
-
-# @app.post("/api/mock-data/insert")
-# async def insert_mock_data():
-#     """Insert mock comments data into the database"""
-#     try:
-#         db = get_database()
-#         result = await db.insert_mock_data()
-#         return JSONResponse(content=result)
-#     except Exception as e:
-#         logger.error(f"Error inserting mock data: {e}")
-#         raise HTTPException(status_code=500, detail=str(e))
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close database connections on shutdown"""
 
 
 class ScrapedData(BaseModel):
@@ -674,7 +645,7 @@ async def root():
             <nav class="navbar">
                 <div class="nav-links">
                     <a href="/" class="nav-link active">Home</a>
-                    <a href="/feed" class="nav-link">Feed</a>
+                    <a href="/comments" class="nav-link">Feed</a>
                 </div>
             </nav>
             
@@ -703,19 +674,6 @@ async def root():
     </html>
     """
     return HTMLResponse(content=html_content)
-
-
-@app.get("/api/feed")
-async def get_feed(limit: int = Query(default=50, ge=1, le=200), offset: int = Query(default=0, ge=0)):
-    """Get feed of comments from database with pagination"""
-    # try:
-    #     db = get_database()
-    #     result = await db.get_all_raw_comments(limit=limit, offset=offset)
-    #     return result
-    # except Exception as e:
-    #     logger.error(f"Error getting feed: {e}", exc_info=True)
-    #     raise HTTPException(status_code=500, detail=f"Error getting feed: {str(e)}")
-    return {"message": "Database is temporarily disabled", "data": [], "total": 0}
 
 
 
