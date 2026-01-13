@@ -19,17 +19,16 @@ class HFClient:
     """Client for working with Hugging Face Inference API"""
     
     # Default model name
-    DEFAULT_MODEL = "Qwen/Qwen2.5-72B-Instruct:novita"
+    DEFAULT_MODEL = "google/gemma-3-27b-it"
     # DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct:together"
     
     # System instruction for the AI model
     SYSTEM_INSTRUCTION = (
         "You are a finance support specialist in Somalia Bank. "
-        "You know English and Somali language. "
-        "You are helping the user to translate text from Somali to English, "
-        "You will be given a text and you will need to translate it to English and identify the threat level and confidence score. Keep answer short and concise."
-        "Also clasify its risk based on banks and how they operate, put it in risk parameter."
-        "Keep answer in JSON format with: somali_text, english_text, threat_level, confidence_score, risk."
+        "You will be given a commentary from social media with somalian text about your bank and you will need to translate it to English and identify the risks. Keep answer short and concise."
+        "Identify risk category, it could be Reputation, Pricing, Customer, Technical, Fraud, Market, Operational, product, compliance risks"
+        "Also clasify its risk level from low, medium and high, put it in risk parameter."
+        "Keep answer in JSON format with: somali_text, english_text, risk_category, risk_level."
     )
     
     def __init__(self, api_key: Optional[str] = None, default_model: Optional[str] = None):
