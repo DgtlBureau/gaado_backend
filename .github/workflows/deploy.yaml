@@ -1,0 +1,21 @@
+name: Deploy back
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-push:
+    runs-on: back
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up environment variables
+      run: |
+        echo "${{ secrets.ENV }}" >> .env
+
+    - name: Rebuild containers
+      run: |
+        docker compose -f docker-compose.yml  up -d --build --force-recreate
