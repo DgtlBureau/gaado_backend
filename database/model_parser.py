@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class ModelParser:
-    """Parser for Gemini API JSON responses"""
+    """Parser for AI API JSON responses"""
     
     @staticmethod
-    def parse_gemini_response(response_text: str, raw_comment_id: Optional[int] = None) -> Optional[ProcessedCommentCreate]:
+    def parse_ai_response(response_text: str, raw_comment_id: Optional[int] = None) -> Optional[ProcessedCommentCreate]:
         """
         Parse JSON response from Gemini API and return ProcessedCommentCreate model
         
@@ -65,6 +65,11 @@ class ModelParser:
                     logger.warning(f"Invalid confidence_score: {confidence_score}")
                     confidence_score = None
             
+            # Extract risk from response
+            risk = parsed_data.get("risk")
+            if risk:
+                risk = str(risk).strip()
+            
             # Create ProcessedCommentCreate model instance
             processed_comment = ProcessedCommentCreate(
                 raw_comment_id=raw_comment_id,  # Will be set later in main.py if None
@@ -73,6 +78,7 @@ class ModelParser:
                 confidence_score=confidence_score,
                 dialect=None,  # Not provided by Gemini yet
                 keywords=None,  # Not provided by Gemini yet
+                risk=risk,
                 is_reviewed=False
             )
             

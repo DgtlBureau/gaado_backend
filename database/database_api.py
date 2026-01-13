@@ -188,6 +188,7 @@ def add_processed_comment(raw_comment_id: int, translation_en: Optional[str] = N
                          category_slug: Optional[str] = None, sentiment_slug: Optional[str] = None,
                          threat_level_slug: Optional[str] = None, confidence_score: Optional[float] = None,
                          dialect: Optional[str] = None, keywords: Optional[List[str]] = None,
+                         risk: Optional[str] = None, model_name: Optional[str] = None,
                          is_reviewed: bool = False) -> Optional[Dict[str, Any]]:
     """
     Add a processed comment to the database
@@ -201,6 +202,8 @@ def add_processed_comment(raw_comment_id: int, translation_en: Optional[str] = N
         confidence_score: AI confidence score (0.0-1.0)
         dialect: Dialect detected ('Maxa-tiri' or 'Maay')
         keywords: List of keywords extracted
+        risk: Risk assessment string from AI
+        model_name: Model name used for processing
         is_reviewed: Whether the comment has been reviewed by human
     
     Returns:
@@ -258,9 +261,11 @@ def add_processed_comment(raw_comment_id: int, translation_en: Optional[str] = N
             "confidence_score": confidence_score,
             "dialect": dialect,
             "keywords": keywords or [],
+            "risk": risk,
+            "model_name": model_name,
             "is_reviewed": is_reviewed
         }
-        
+              
         response = (
             supabase.table("processed_comments")
             .insert([comment_data])
@@ -287,6 +292,8 @@ def add_comment_with_processing(fb_comment_id: str, post_id: int,
                                 confidence_score: Optional[float] = None,
                                 dialect: Optional[str] = None,
                                 keywords: Optional[List[str]] = None,
+                                risk: Optional[str] = None,
+                                model_name: Optional[str] = None,
                                 is_reviewed: bool = False) -> Optional[Dict[str, Any]]:
     """
     Add both raw comment and processed comment in one operation
@@ -335,6 +342,8 @@ def add_comment_with_processing(fb_comment_id: str, post_id: int,
             confidence_score=confidence_score,
             dialect=dialect,
             keywords=keywords,
+            risk=risk,
+            model_name=model_name,
             is_reviewed=is_reviewed
         )
         

@@ -28,6 +28,8 @@ class ProcessedComment(BaseModel):
     confidence_score: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="AI confidence score (0.0-1.0)")
     dialect: Optional[str] = Field(default=None, description="Dialect detected ('Maxa-tiri' or 'Maay')")
     keywords: Optional[List[str]] = Field(default=None, description="List of extracted keywords")
+    risk: Optional[str] = Field(default=None, description="Risk assessment string from AI")
+    model_name: Optional[str] = Field(default=None, description="Model name used for processing")
     
     # Human review status
     is_reviewed: bool = Field(default=False, description="Whether the comment has been reviewed by human")
@@ -45,6 +47,7 @@ class ProcessedComment(BaseModel):
                 "dialect": "Maxa-tiri",
                 "keywords": ["scam", "error"],
                 "threat_level_id": 1,
+                "risk": "reputation/service risk",
                 "is_reviewed": False
             }
         }
@@ -67,6 +70,8 @@ class ProcessedCommentCreate(BaseModel):
     confidence_score: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="AI confidence score (0.0-1.0)")
     dialect: Optional[str] = Field(default=None, description="Dialect detected ('Maxa-tiri' or 'Maay')")
     keywords: Optional[List[str]] = Field(default=None, description="List of extracted keywords")
+    risk: Optional[str] = Field(default=None, description="Risk assessment string from AI")
+    model_name: Optional[str] = Field(default=None, description="Model name used for processing")
     
     # Human review status
     is_reviewed: bool = Field(default=False, description="Whether the comment has been reviewed by human")
@@ -82,4 +87,6 @@ class SaveProcessedCommentRequest(BaseModel):
     dialect: Optional[str] = Field(default=None, description="Dialect")
     keywords: Optional[List[str]] = Field(default=None, description="Keywords")
     somali_text: Optional[str] = Field(default=None, description="Original Somali text")
+    risk: Optional[str] = Field(default=None, description="Risk assessment string")
+    model_name: Optional[str] = Field(default=None, description="Model name used for processing")
 

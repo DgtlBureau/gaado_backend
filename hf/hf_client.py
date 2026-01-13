@@ -1,6 +1,6 @@
 """
-Google Gemini API Client
-Client for working with Google Gemini API models
+Hugging Face API Client
+Client for working with Hugging Face Inference API models
 """
 import os
 import logging
@@ -9,17 +9,18 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 try:
-    from google import genai
+    from huggingface_hub import InferenceClient
 except ImportError:
-    logger.error("google-genai is not installed. Install it with: pip install google-genai")
-    genai = None
+    logger.error("huggingface_hub is not installed. Install it with: pip install huggingface_hub")
+    InferenceClient = None
 
 
-class GeminiClient:
-    """Client for working with Google Gemini API"""
+class HFClient:
+    """Client for working with Hugging Face Inference API"""
     
     # Default model name
-    DEFAULT_MODEL = "gemini-3-flash-preview"
+    DEFAULT_MODEL = "Qwen/Qwen2.5-72B-Instruct:novita"
+    # DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct:together"
     
     # System instruction for the AI model
     SYSTEM_INSTRUCTION = (
@@ -27,38 +28,39 @@ class GeminiClient:
         "You know English and Somali language. "
         "You are helping the user to translate text from Somali to English, "
         "You will be given a text and you will need to translate it to English and identify the threat level and confidence score. Keep answer short and concise."
-        "Keep answer in JSON format with: somali_text, english_text, threat_level, confidence_score."
+        "Also clasify its risk based on banks and how they operate, put it in risk parameter."
+        "Keep answer in JSON format with: somali_text, english_text, threat_level, confidence_score, risk."
     )
     
     def __init__(self, api_key: Optional[str] = None, default_model: Optional[str] = None):
         """
-        Initialize Gemini client
+        Initialize HF client
         
         Args:
-            api_key: API key for Gemini (if not provided, taken from GEMINI_API_KEY env var)
+            api_key: API key for HF (if not provided, taken from HF_TOKEN env var)
             default_model: Default model name (if not provided, uses DEFAULT_MODEL constant)
         """
         # Get API key: first from parameter, then from environment variable
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        self.api_key = api_key or os.getenv("HF_TOKEN")
         self.default_model = default_model or self.DEFAULT_MODEL
         self.instruction = self.SYSTEM_INSTRUCTION
         
         if not self.api_key:
-            logger.error("GEMINI_API_KEY is not set!")
+            logger.error("HF_TOKEN is not set!")
             self.client = None
             return
         
-        if genai is None:
-            logger.error("google-genai is not installed. Install it with: pip install google-genai")
-            raise ImportError("google-genai is not installed. Install it with: pip install google-genai")
+        if InferenceClient is None:
+            logger.error("huggingface_hub is not installed. Install it with: pip install huggingface_hub")
+            raise ImportError("huggingface_hub is not installed. Install it with: pip install huggingface_hub")
         
         try:
-            logger.info("Creating genai.Client with explicit api_key parameter...")
+            logger.info("Creating InferenceClient with explicit api_key parameter...")
             # Pass API key explicitly via api_key parameter
-            self.client = genai.Client(api_key=self.api_key)
-            logger.info(f"Gemini client initialized. Model: {self.default_model}")
+            self.client = InferenceClient(api_key=self.api_key)
+            logger.info(f"HF client initialized. Model: {self.default_model}")
         except Exception as e:
-            logger.error(f"Error initializing Gemini client: {e}", exc_info=True)
+            logger.error(f"Error initializing HF client: {e}", exc_info=True)
             self.client = None
     
     def process_user_request(
@@ -80,10 +82,10 @@ class GeminiClient:
             Model response as a string
         """
         if not self.client:
-            raise ValueError("Gemini client is not initialized. Check GEMINI_API_KEY.")
+            raise ValueError("HF client is not initialized. Check HF_TOKEN.")
         
-        # The system instruction is automatically applied via GenerateContentConfig
-        # User prompt is sent as contents
+        # The system instruction is sent as a system message
+        # User prompt is sent as user message
         response = self.generate_content(
             contents=user_prompt,
             model=model
@@ -99,7 +101,7 @@ class GeminiClient:
         **kwargs
     ) -> str:
         """
-        Generate content via Gemini API
+        Generate content via HF Inference API
         
         Args:
             contents: Request text
@@ -110,26 +112,41 @@ class GeminiClient:
             Model response as a string
         """
         if not self.client:
-            raise ValueError("Gemini client is not initialized. Check GEMINI_API_KEY.")
+            raise ValueError("HF client is not initialized. Check HF_TOKEN.")
         
         model = model or self.default_model
 
-        if genai is None:
-            raise ValueError("google-genai package is not installed")
+        if InferenceClient is None:
+            raise ValueError("huggingface_hub package is not installed")
         
         try:
-            response = self.client.models.generate_content(
+            # HF Inference API uses chat.completions.create with messages
+            messages = [
+                {
+                    "role": "system",
+                    "content": self.instruction
+                },
+                {
+                    "role": "user",
+                    "content": contents
+                }
+            ]
+            
+            response = self.client.chat.completions.create(
                 model=model,
-                contents=contents,
-                config=genai.types.GenerateContentConfig(
-                    system_instruction=self.instruction
-                )
+                messages=messages,
+                **kwargs
             )
             
-            if response.text is None:
-                raise ValueError("Empty response from Gemini API")
+            # Extract text from response
+            if not response.choices or len(response.choices) == 0:
+                raise ValueError("Empty response from HF API")
             
-            return response.text
+            message = response.choices[0].message
+            if not message or not message.content:
+                raise ValueError("Empty response content from HF API")
+            
+            return message.content
             
         except Exception as e:
             logger.error(f"Error generating content: {e}", exc_info=True)

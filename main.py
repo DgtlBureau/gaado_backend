@@ -12,7 +12,8 @@ import os
 import json
 from datetime import datetime
 from dotenv import load_dotenv
-from gemini.gemini_client import GeminiClient
+# from gemini.gemini_client import GeminiClient
+from hf.hf_client import HFClient
 from database.model_parser import ModelParser
 from database.database import init_database, get_database
 from database.database_api import add_raw_comment, add_processed_comment
@@ -66,8 +67,13 @@ async def shutdown_event():
     """Close database connections on shutdown"""
 
 
-class GeminiChatRequest(BaseModel):
-    """Model for Gemini chat request"""
+# class GeminiChatRequest(BaseModel):
+#     """Model for Gemini chat request"""
+#     prompt: str = Field(..., description="Text prompt for the AI model")
+#     model: Optional[str] = Field(default=None, description="Model name (optional, uses default if not specified)")
+
+class HFChatRequest(BaseModel):
+    """Model for HF chat request"""
     prompt: str = Field(..., description="Text prompt for the AI model")
     model: Optional[str] = Field(default=None, description="Model name (optional, uses default if not specified)")
 
@@ -548,11 +554,66 @@ async def root():
                 return div.innerHTML;
             }
             
-            async function chatGemini() {
-                const prompt = document.getElementById('gemini-prompt').value.trim();
-                const button = document.getElementById('gemini-chat-btn');
-                const loading = document.getElementById('gemini-loading');
-                const resultContainer = document.getElementById('gemini-result-container');
+            // async function chatGemini() {
+            //     const prompt = document.getElementById('gemini-prompt').value.trim();
+            //     const button = document.getElementById('gemini-chat-btn');
+            //     const loading = document.getElementById('gemini-loading');
+            //     const resultContainer = document.getElementById('gemini-result-container');
+            //     
+            //     if (!prompt) {
+            //         alert('Please enter a prompt');
+            //         return;
+            //     }
+            //     
+            //     // Показываем загрузку
+            //     button.disabled = true;
+            //     loading.classList.add('show');
+            //     resultContainer.classList.remove('show');
+            //     
+            //     try {
+            //         const response = await fetch('/gemini/chat', {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //             },
+            //             body: JSON.stringify({ prompt: prompt })
+            //         });
+            //         
+            //         if (!response.ok) {
+            //             const errorText = await response.text();
+            //             console.error('HTTP Error:', response.status, errorText);
+            //             showGeminiError(`Ошибка сервера (${response.status}): ${errorText}`);
+            //             return;
+            //         }
+            //         
+            //         const data = await response.json();
+            //         console.log('Response data:', data);
+            //         
+            //         if (data.success) {
+            //             // Отображаем результат
+            //             displayGeminiResult(data.response, prompt, data.parsed_data);
+            //             
+            //             // Сохраняем в БД если есть parsed_data
+            //             if (data.parsed_data) {
+            //                 await saveProcessedCommentToDatabase(data.parsed_data, prompt);
+            //             }
+            //         } else {
+            //             showGeminiError(data.error || 'Произошла ошибка при обработке запроса');
+            //         }
+            //     } catch (error) {
+            //         console.error('Request error:', error);
+            //         showGeminiError('Ошибка соединения: ' + error.message);
+            //     } finally {
+            //         button.disabled = false;
+            //         loading.classList.remove('show');
+            //     }
+            // }
+            
+            async function chatHF() {
+                const prompt = document.getElementById('hf-prompt').value.trim();
+                const button = document.getElementById('hf-chat-btn');
+                const loading = document.getElementById('hf-loading');
+                const resultContainer = document.getElementById('hf-result-container');
                 
                 if (!prompt) {
                     alert('Please enter a prompt');
@@ -565,7 +626,7 @@ async def root():
                 resultContainer.classList.remove('show');
                 
                 try {
-                    const response = await fetch('/gemini/chat', {
+                    const response = await fetch('/hf/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -576,7 +637,7 @@ async def root():
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error('HTTP Error:', response.status, errorText);
-                        showGeminiError(`Ошибка сервера (${response.status}): ${errorText}`);
+                        showHFError(`Ошибка сервера (${response.status}): ${errorText}`);
                         return;
                     }
                     
@@ -585,18 +646,18 @@ async def root():
                     
                     if (data.success) {
                         // Отображаем результат
-                        displayGeminiResult(data.response, prompt, data.parsed_data);
+                        displayHFResult(data.response, prompt, data.parsed_data);
                         
                         // Сохраняем в БД если есть parsed_data
                         if (data.parsed_data) {
                             await saveProcessedCommentToDatabase(data.parsed_data, prompt);
                         }
                     } else {
-                        showGeminiError(data.error || 'Произошла ошибка при обработке запроса');
+                        showHFError(data.error || 'Произошла ошибка при обработке запроса');
                     }
                 } catch (error) {
                     console.error('Request error:', error);
-                    showGeminiError('Ошибка соединения: ' + error.message);
+                    showHFError('Ошибка соединения: ' + error.message);
                 } finally {
                     button.disabled = false;
                     loading.classList.remove('show');
@@ -605,11 +666,11 @@ async def root():
             
             async function saveProcessedCommentToDatabase(parsedData, somaliText) {
                 // Генерируем временные ID для демонстрации (в реальном приложении они должны приходить из формы)
-                const fbCommentId = 'gemini_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const fbCommentId = 'hf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                 const postId = 1; // Прикрепляем к реальному посту
                 
                 try {
-                    const response = await fetch('/gemini/save', {
+                    const response = await fetch('/hf/save', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -622,7 +683,9 @@ async def root():
                             confidence_score: parsedData.confidence_score,
                             dialect: parsedData.dialect,
                             keywords: parsedData.keywords,
-                            somali_text: somaliText || parsedData.somali_text
+                            somali_text: somaliText || parsedData.somali_text,
+                            risk: parsedData.risk,
+                            model_name: parsedData.model_name
                         })
                     });
                     
@@ -638,12 +701,45 @@ async def root():
                 }
             }
             
-            function displayGeminiResult(response, prompt) {
-                const container = document.getElementById('gemini-result-container');
+            // function displayGeminiResult(response, prompt) {
+            //     const container = document.getElementById('gemini-result-container');
+            //     
+            //     let html = `
+            //         <div class="result-header">
+            //             <h3>🤖 Response from Gemini</h3>
+            //         </div>
+            //         <div style="margin-bottom: 15px;">
+            //             <strong style="color: #667eea;">Request:</strong>
+            //             <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap;">${escapeHtml(prompt)}</div>
+            //         </div>
+            //         <div>
+            //             <strong style="color: #667eea;">Response:</strong>
+            //             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(response)}</div>
+            //         </div>
+            //     `;
+            //     
+            //     container.innerHTML = html;
+            //     container.classList.add('show');
+            //     container.classList.remove('error');
+            // }
+            // 
+            // function showGeminiError(message) {
+            //     const container = document.getElementById('gemini-result-container');
+            //     container.innerHTML = `
+            //         <div class="result-header">
+            //             <h3 style="color: #ef4444;">❌ Ошибка</h3>
+            //         </div>
+            //         <p style="color: #ef4444;">${escapeHtml(message)}</p>
+            //     `;
+            //     container.classList.add('show', 'error');
+            // }
+            
+            function displayHFResult(response, prompt) {
+                const container = document.getElementById('hf-result-container');
                 
                 let html = `
                     <div class="result-header">
-                        <h3>🤖 Response from Gemini</h3>
+                        <h3>🤖 Response from Hugging Face</h3>
                     </div>
                     <div style="margin-bottom: 15px;">
                         <strong style="color: #667eea;">Request:</strong>
@@ -660,8 +756,8 @@ async def root():
                 container.classList.remove('error');
             }
             
-            function showGeminiError(message) {
-                const container = document.getElementById('gemini-result-container');
+            function showHFError(message) {
+                const container = document.getElementById('hf-result-container');
                 container.innerHTML = `
                     <div class="result-header">
                         <h3 style="color: #ef4444;">❌ Ошибка</h3>
@@ -685,7 +781,7 @@ async def root():
             <h1>🚀 Gaado Backend API</h1>
             
             
-            <div class="scraper-section">
+            <!-- <div class="scraper-section">
                 <h2>✨ Google Gemini Chat</h2>
                 <p style="color: #666; font-size: 0.85em; margin-top: -10px; margin-bottom: 20px; font-style: italic;">translate this from somali to english</p>
                 <div class="scraper-form">
@@ -700,6 +796,23 @@ async def root():
                     <p>Response-request with AI.</p>
                 </div>
                 <div id="gemini-result-container" class="result-container"></div>
+            </div> -->
+            
+            <div class="scraper-section">
+                <h2>✨ Hugging Face Chat</h2>
+                <p style="color: #666; font-size: 0.85em; margin-top: -10px; margin-bottom: 20px; font-style: italic;">translate this from somali to english</p>
+                <div class="scraper-form">
+                    <textarea 
+                        id="hf-prompt" 
+                        placeholder="Input your prompt here..."
+                    >Waa bankiga kaliya ee dadkiisa cilada heesato ku xaliyo ka wada bax dib usoo bilaaw tirtir ee dib usoo daji</textarea>
+                    <button id="hf-chat-btn" onclick="chatHF()">Send</button>
+                </div>
+                <div id="hf-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Response-request with AI.</p>
+                </div>
+                <div id="hf-result-container" class="result-container"></div>
             </div>
             
         </div>
@@ -710,10 +823,67 @@ async def root():
 
 
 
-@app.post("/gemini/chat")
-async def chat_with_gemini(request: GeminiChatRequest, req: Request):
+# @app.post("/gemini/chat")
+# async def chat_with_gemini(request: GeminiChatRequest, req: Request):
+#     """
+#     Endpoint for chatting with Gemini model
+#     
+#     Args:
+#         request: Request with prompt text and optional model name
+#         req: FastAPI Request object for accessing environment variables
+#         
+#     Returns:
+#         Response from AI model
+#     """
+#     try:
+#         # Get API key from environment variable
+#         gemini_api_key = os.getenv("GEMINI_API_KEY")
+#         
+#         # Create client with API key
+#         client = GeminiClient(api_key=gemini_api_key)
+#         
+#         if not client.is_available():
+#             return {
+#                 "success": False,
+#                 "error": "Gemini client is not available. Check GEMINI_API_KEY."
+#             }
+#         
+#         # Process user request - all logic is encapsulated in the client
+#         response = client.process_user_request(
+#             user_prompt=request.prompt,
+#             model=request.model
+#         )
+#         
+#         # Parse response using ModelParser
+#         parser = ModelParser()
+#         processed_comment_data = parser.parse_ai_response(response)
+#         
+#         # Convert ProcessedCommentCreate to dict for response (excluding raw_comment_id)
+#         parsed_data_dict = None
+#         if processed_comment_data:
+#             # Use model_dump() to serialize, excluding raw_comment_id
+#             parsed_data_dict = processed_comment_data.model_dump(exclude={"raw_comment_id"})
+#             # Add somali_text from original prompt
+#             parsed_data_dict["somali_text"] = request.prompt
+#         
+#         return {
+#             "success": True,
+#             "response": response,
+#             "model": request.model or client.default_model,
+#             "parsed_data": parsed_data_dict
+#         }
+#     except Exception as e:
+#         logger.error(f"Error processing Gemini request: {e}", exc_info=True)
+#         return {
+#             "success": False,
+#             "error": f"Internal error: {str(e)}"
+#         }
+
+
+@app.post("/hf/chat")
+async def chat_with_hf(request: HFChatRequest, req: Request):
     """
-    Endpoint for chatting with Gemini model
+    Endpoint for chatting with Hugging Face model
     
     Args:
         request: Request with prompt text and optional model name
@@ -724,15 +894,15 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
     """
     try:
         # Get API key from environment variable
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        hf_api_key = os.getenv("HF_TOKEN")
         
         # Create client with API key
-        client = GeminiClient(api_key=gemini_api_key)
+        client = HFClient(api_key=hf_api_key)
         
         if not client.is_available():
             return {
                 "success": False,
-                "error": "Gemini client is not available. Check GEMINI_API_KEY."
+                "error": "HF client is not available. Check HF_TOKEN."
             }
         
         # Process user request - all logic is encapsulated in the client
@@ -743,32 +913,38 @@ async def chat_with_gemini(request: GeminiChatRequest, req: Request):
         
         # Parse response using ModelParser
         parser = ModelParser()
-        processed_comment_data = parser.parse_gemini_response(response)
+        processed_comment_data = parser.parse_ai_response(response)
+        
+        # Get model name used
+        model_name_used = request.model or client.default_model
         
         # Convert ProcessedCommentCreate to dict for response (excluding raw_comment_id)
         parsed_data_dict = None
         if processed_comment_data:
             # Use model_dump() to serialize, excluding raw_comment_id
             parsed_data_dict = processed_comment_data.model_dump(exclude={"raw_comment_id"})
-            # Add somali_text from original prompt
+            # Add somali_text from original prompt and model_name
             parsed_data_dict["somali_text"] = request.prompt
+            parsed_data_dict["model_name"] = model_name_used
         
         return {
             "success": True,
             "response": response,
-            "model": request.model or client.default_model,
+            "model": model_name_used,
             "parsed_data": parsed_data_dict
         }
     except Exception as e:
-        logger.error(f"Error processing Gemini request: {e}", exc_info=True)
+        logger.error(f"Error processing HF request: {e}", exc_info=True)
         return {
             "success": False,
             "error": f"Internal error: {str(e)}"
         }
 
 
-@app.post("/gemini/save")
-async def save_processed_comment(request: SaveProcessedCommentRequest):
+# @app.post("/gemini/save")
+# async def save_processed_comment(request: SaveProcessedCommentRequest):
+@app.post("/hf/save")
+async def save_processed_comment_hf(request: SaveProcessedCommentRequest):
     """
     Endpoint for saving processed comment to database
     
@@ -803,6 +979,8 @@ async def save_processed_comment(request: SaveProcessedCommentRequest):
             confidence_score=request.confidence_score,
             dialect=request.dialect,
             keywords=request.keywords,
+            risk=request.risk,
+            model_name=request.model_name,
             is_reviewed=False
         )
         

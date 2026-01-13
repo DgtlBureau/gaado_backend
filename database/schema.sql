@@ -87,6 +87,8 @@ CREATE TABLE IF NOT EXISTS processed_comments (
     confidence_score REAL,             -- Probability (e.g., 0.98)
     dialect TEXT,                      -- 'Maxa-tiri' or 'Maay' [cite: 36]
     keywords JSONB,                    -- List of words: ["scam", "error"]
+    risk TEXT,                         -- Risk assessment string from AI
+    model_name TEXT,                   -- Model name used for processing (e.g., "Qwen/Qwen2.5-7B-Instruct:together")
     
     -- Human review status (Human-in-the-loop)
     is_reviewed BOOLEAN DEFAULT FALSE,

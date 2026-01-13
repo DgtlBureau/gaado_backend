@@ -6,6 +6,8 @@ from fastapi import APIRouter, Query
 from fastapi.responses import HTMLResponse
 from datetime import datetime
 import logging
+import hashlib
+import colorsys
 from dateutil import parser as date_parser
 from database.database_api import get_latest_comments
 from database.database import get_database
@@ -409,7 +411,11 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
             content = comment.get("content") or ""
             created_at = comment.get("created_at") or ""
             
+            # Get risk from processed comment, fallback to category_name
+            risk = comment.get("risk")
             category_name = comment.get("category_name") or "General"
+            display_category = risk if risk else category_name
+            
             category_slug = comment.get("category_slug") or "general"
             sentiment_slug = comment.get("sentiment_slug") or ""
             threat_level_slug = comment.get("threat_level_slug") or ""
@@ -417,19 +423,41 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
             translation = comment.get("translation_en") or ""
             dialect = comment.get("dialect") or ""
             confidence_score = comment.get("confidence_score", 0.0)
+            model_name = comment.get("model_name") or ""
             
             # Format date
             time_str = ""
-            # if created_at:
-            #     try:
-            #         if isinstance(created_at, str):
-            #             dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-            #             time_str = dt.strftime("%H:%M:%S")
-            #     except (ValueError, AttributeError) as e:
-            #         logger.debug(f"Could not parse date: {e}")
-            #         pass
+            date_str = ""
+            if created_at:
+                try:
+                    if isinstance(created_at, str):
+                        dt = date_parser.parse(created_at)
+                        time_str = dt.strftime("%H:%M:%S")
+                        date_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                    elif hasattr(created_at, 'strftime'):
+                        time_str = created_at.strftime("%H:%M:%S")
+                        date_str = created_at.strftime("%Y-%m-%d %H:%M:%S")
+                except (ValueError, AttributeError, TypeError) as e:
+                    logger.debug(f"Could not parse date: {e}")
+                    pass
             
-            # Determine category color based on threat level
+            # Generate random color for risk if risk is present, otherwise use threat level color
+            if risk:
+                # Generate consistent color based on risk string hash
+                hash_obj = hashlib.md5(risk.encode())
+                hash_int = int(hash_obj.hexdigest(), 16)
+                # Generate color in HSL format, convert to RGB
+                hue = hash_int % 360
+                saturation = 60 + (hash_int % 20)  # 60-80%
+                lightness = 45 + (hash_int % 15)  # 45-60%
+                # Convert HSL to RGB (simplified)
+                rgb = colorsys.hls_to_rgb(hue/360, lightness/100, saturation/100)
+                category_color_hex = f"#{int(rgb[0]*255):02x}{int(rgb[1]*255):02x}{int(rgb[2]*255):02x}"
+            else:
+                # Use threat level color if no risk
+                category_color_hex = threat_level_color
+            
+            # Determine category color class based on threat level (for CSS classes)
             category_color = "orange"
             if threat_level_slug == "nominal":
                 category_color = "green"
@@ -480,6 +508,8 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
                         <div class="comment-user-name">{escape_html(author)}</div>
                         <div class="comment-meta">
                             <span>via Mobile</span>
+                            {f'<span>• {escape_html(date_str)}</span>' if date_str else ''}
+                            {f'<span>• Model: {escape_html(model_name)}</span>' if model_name else ''}
                         </div>
                     </div>
                     <div class="comment-text">{highlighted_content}</div>
@@ -498,7 +528,7 @@ def comments_page(limit: int = Query(default=50, ge=1, le=200), offset: int = Qu
                     {confidence_html}
                 </div>
                 <div class="category-badge">
-                    <div class="category-btn {category_color}" style="background-color: {threat_level_color};">{category_name.replace('_', ' ').title()}</div>
+                    <div class="category-btn {category_color}" style="background-color: {category_color_hex};">{escape_html(display_category).replace('_', ' ').title()}</div>
                 </div>
             </div>
             """
