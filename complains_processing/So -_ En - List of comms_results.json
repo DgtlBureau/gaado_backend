@@ -1,0 +1,2248 @@
+{
+  "metadata": {
+    "total_processed": 280,
+    "generated_at": "2026-01-13 21:25:30"
+  },
+  "results": [
+    {
+      "row_number": 20,
+      "somali": "Suufiyinta abdiqadir jeylani sidan oo kle bu u khiyamay",
+      "english": "The Sufis, Abdiqadir Jeylani cheated/tricked them just like this.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 21,
+      "somali": "Pankigan ya igu caawiya 😢",
+      "english": "Who can help me with this bank? 😢",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 22,
+      "somali": "Meesha weli allow shiiqow soo kuma habooneyn mise waxkasto falcelinta xayey siintaa idinkala muhiimsanaatay",
+      "english": "Did Sheikh Allow not fit in there yet, or has the reaction to the advertisement become more important to you than everything else?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 24,
+      "somali": "premier bank lacgta aad goosanysaan transtaction keedana aan la arkayn iska saxa si hufan wax walba u cadeeya",
+      "english": "Premier Bank, fix the money you are deducting where the transaction is not even visible; clarify everything transparently.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 25,
+      "somali": "Tuugnimadii aad dadka lacagtooda with out bank state ment aad kula bixi jirteen ma iska dayseena?",
+      "english": "Have you stopped the thievery where you used to take people's money without a bank statement?",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Data Privacy",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 26,
+      "somali": "Payment gateway giina siden u hella ma jiraan meherado isticmaala bal haday jiraan ii sheega",
+      "english": "How can I get your payment gateway? Are there any businesses using it? If there are, tell me.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 27,
+      "somali": "Markaa wareerto Dadkaan wada shiidka ah baad u malayni in ChatGPT ay rukumanayaan 🤣🤣🤣",
+      "english": "When you get confused, you think these broke people are subscribing to ChatGPT 🤣🤣🤣.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 28,
+      "somali": "Khidmadda Waalida iska Jarmayso Macmiisha ka Yareeya",
+      "english": "Reduce the crazy service fees that deduct automatically from the customers.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Fee Transparency",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 29,
+      "somali": "Sidee loo furan markaa",
+      "english": "How is it opened then?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 30,
+      "somali": "Maxaan rukumanaa Virtual card-ka aad bixisaan waa mid meel aadan waligaa ku xisan isaga xirmaayo...",
+      "english": "What should I subscribe to? The Virtual card you provide is one that closes itself in places you never expected...",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 31,
+      "somali": "Lacago aanan la aqoonin bangiga iska jaranayo...",
+      "english": "The bank is deducting unknown amounts of money...",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Fee Transparency",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 32,
+      "somali": "Somali ku soo dara",
+      "english": "Add Somali language.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 33,
+      "somali": "Good wallet✅",
+      "english": "Good wallet✅",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 34,
+      "somali": "Asc asxaabay Peegkan dhamaantiin Fallow iso dhaha",
+      "english": "Peace friends, everyone on this page follow me.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 35,
+      "somali": "Ilaa hada wax bank ahaan u shaqeeyo kama jiraan dalka ee xawalado unbaa lamoodaa oo xifaaltan ka dhexeyo.",
+      "english": "Until now, there is nothing operating as a bank in the country; they just seem like Hawalas competing with each other.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 36,
+      "somali": "Qof Netherlands 🇳🇱 jooga oo aan waligii somali imanin sidee igu soo diri kara lacag",
+      "english": "How can someone in the Netherlands 🇳🇱 who has never come to Somalia send me money?",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 37,
+      "somali": "Car Switzerland 🇨🇭 lacag oga dir wallet",
+      "english": "Try sending money to a wallet from Switzerland 🇨🇭.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 38,
+      "somali": "Farsamadaan caadi ma ahan, waa Tiknoloojiya caadi ah. 🔥👀",
+      "english": "This technique is not normal, it is extraordinary technology. 🔥👀",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 39,
+      "somali": "nin dhagax buur jooga see looga dhaadhicin karaa fargal baa lacagi ku jirtaa",
+      "english": "How can you convince a man in Dhagaxbuur that there is money inside a ring?",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 40,
+      "somali": "Niyoo ani waxaan layaabe bankikaan qof kucaawiyo malahan... maybe malahan customer service",
+      "english": "Oh man, I am surprised by this bank, they have no one to help you... maybe they don't have customer service.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 41,
+      "somali": "Dad Qayilaya Ayala Customer Care Ka Idin Fadhiyo Account kina Waan Xiray Dadka Ha Waqtiga Haka Luminina",
+      "english": "You have people chewing Khat sitting as Customer Care, and I closed the account. Do not waste people's time.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 42,
+      "somali": "Hadi la iga dhaco kwrn😂",
+      "english": "What if it is stolen from me? 😂",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Account Takeover",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 43,
+      "somali": "kkkkkk hhhhhhh hadii leyga qato ka waran bro",
+      "english": "kkkkkk hhhhhhh what if it is taken from me, bro?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 44,
+      "somali": "This smart lkn Scure miyaa",
+      "english": "This is smart but is it Secure?",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 45,
+      "somali": "Mansha allah waan soo dhawaynaynaa",
+      "english": "Masha Allah, we welcome it.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 46,
+      "somali": "Horta adeega Zaad ban rabaa inan ka guuro side u isticmala kan halkee ka Furta",
+      "english": "First, I want to move from Zaad service; how do I use this one and where do I open it?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 47,
+      "somali": "Hadii tuugo iga dhacdo accountgaas lacagta kujirta waa udhamaatey",
+      "english": "If thieves steal it from me, the money in that account is finished.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 48,
+      "somali": "Eng.yuyu, ma haysaa xal aan iskaga joojiyo fariin ii soo dhacaysa 3 sano oo ah sidan 😞",
+      "english": "Eng. Yuyu, do you have a solution for me to stop a message that has been coming to me for 3 years like this 😞",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 49,
+      "somali": "Dear Cabdiwali , You have insufficient funds in your account for this transaction of amount 6.99 at APPLE.COM...",
+      "english": "Dear Cabdiwali , You have insufficient funds in your account for this transaction of amount 6.99 at APPLE.COM...",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 50,
+      "somali": "Marka qalabkaas lacag leyga siiyo,waxaa jeebkeyga kabaxay lacag iyadoo intaas ay dheertahay inaan bilaash kuheli doonin...",
+      "english": "When I pay with that device, money leaves my pocket... I won't get for free whatever else I was buying!",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 51,
+      "somali": "Kawaran hdu farantiga igu jiro... sooma fududa in machinka tugo kensadaan si fududna ula bixi karaan lacagaha ?",
+      "english": "What if I have the ring on... isn't it easy for thieves to bring a machine and easily take the money out?",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 52,
+      "somali": "Premier Bank waxan jogaa kenya Siden ku heli karaa",
+      "english": "Premier Bank, I am in Kenya, how can I get it?",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 53,
+      "somali": "Waxaa ka fikirooya inta video-gaan socdo maqaaxidaas customer ma imaan Mia 😂",
+      "english": "I am thinking, while this video is playing, did no customers come to that cafe? 😂",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 54,
+      "somali": "Wax rabaa master card sidee u helaaa Premier Bank",
+      "english": "I want a Master Card, how do I get it Premier Bank?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 55,
+      "somali": "Waa scam hala iska ilaaliyo aduunka kama jiro qalabka gacanta lagu xirto misna bankigaaga aad ku xiratid...",
+      "english": "It is a scam, people should avoid it. It doesn't exist in the world that a wearable device connects to your bank...",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 56,
+      "somali": "Eng dad qadeeyaa wax u sharaxeysaa waxaan premier bank ku isticmalno Allaha nasoo galiyo.",
+      "english": "Eng, you are explaining things to people who are eating lunch; may Allah give us something to use in Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 57,
+      "somali": "Sida lacag loogu helo Ookiyaal, Faraanti,Jijin and Soo on nookeena waanu naqaanaa how to pay money-yee",
+      "english": "Bring us how to get money via Glasses, Rings, Bracelets and so on, we already know how to pay money.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 58,
+      "somali": "It's much better to integrate with Apple's payment system to make easy and safer",
+      "english": "It's much better to integrate with Apple's payment system to make easy and safer.",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 59,
+      "somali": "Oo hadii mobileka la iga xadana soo la igalama bixi karo?",
+      "english": "And if my mobile is stolen, can't they take [money] out of it?",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Account Takeover",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 60,
+      "somali": "Caadi maaha!",
+      "english": "It's not normal! (It's amazing).",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 61,
+      "somali": "Side anoo wadan kale jooga u samaysan karaa",
+      "english": "How can I create one while I am in another country?",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 62,
+      "somali": "Premier bank waa bank horumarsan waa la dhahaa balse wax horumar muuqdo ama isbadal ah oo lagusoo kordhiyay app-kooda ma arko",
+      "english": "Premier Bank is said to be a developed bank, but I don't see any visible progress or changes added to their app.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 63,
+      "somali": "Muhiim ma'ahan wax macno ahna ma sameyneyso in dalalkale lacag aan u dirnaa ee waxaa ka muhiimsan in bangiyada kale ee dalka inaad u diri kartaan...",
+      "english": "It makes no sense that we send money to other countries; what is more important is that you can send to other banks in the country...",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 64,
+      "somali": "Anoo wadanka kamaqan oo aan haysan number soomaali ma sameysan karaa akoon",
+      "english": "Can I create an account while I am out of the country and don't have a Somali number?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 65,
+      "somali": "Saan dalka oga baxayba wax aan isaga ahayn ma isticmaalin",
+      "english": "Since I left the country, I haven't used anything else.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 66,
+      "somali": "Nio qaabkan wa jira anigane isticmali jiray balse dhibka ay ledahay qofka ku diro ayaa ogan karo mrka wan idinkaga digayaa qof wlba",
+      "english": "Bro, this method exists and I used to use it, but the problem is the sender can trace it, so I am warning everyone.",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 67,
+      "somali": "Anigaaba isrlticmaali la accountigaygii War niman yohow naga daaya meesha flexibility ma taalo e",
+      "english": "I couldn't even use my own account. Hey guys, leave us alone, there is no flexibility there.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 68,
+      "somali": "Premier wallet dhowr mar ayan lacag kenya iyo Italy ugu diray masha Allah",
+      "english": "Premier wallet, I sent money to Kenya and Italy several times, Masha Allah.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 69,
+      "somali": "Masha alaah wallet premier Banki waa ku nastay markii sadaxaad labo bilood guduhood waxaan lacag uga diray habiryartey gaarisa Kenya...",
+      "english": "Masha Allah, I found relief with Premier Bank wallet. For the third time in two months, I sent money to my aunt in Garissa Kenya...",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 70,
+      "somali": "Nimanyahahaw soomalia loomadirikaro",
+      "english": "You guys, it cannot be sent to Somalia.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 71,
+      "somali": "Aniga Shaq siyan Waxan ku amaanayaa Sida Dag Daga ah Macamilka Cawashada Qabo Ugu jawabayan.",
+      "english": "Personally, I praise them for how quickly they answer the customer who has a complaint.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 72,
+      "somali": "110 dal lacagta aan u dirayo xagee iiga imaanaysaa!",
+      "english": "The 110 countries I am sending money to, where is the money coming from for me?!",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 73,
+      "somali": "hal dolar ber ayaa igu jiro malega bixinkara waalegu siray",
+      "english": "I have one dollar in it for tomorrow, can it be paid? You have been tricked.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Currency Availability",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 74,
+      "somali": "Sxb Maxaad Dib Noogu Celinaysaa Oo Nooga Luminaysaa Laba Daqiiqadood Anagoo Seconds Ku Dirayna Kuna Helayna Lacagta.",
+      "english": "Friend, why are you taking us back and wasting two minutes of our time when we were sending and receiving money in seconds?",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 76,
+      "somali": "Qofki furtana $kista uga farxini ku dara",
+      "english": "And whoever opens it, add some $ cash to make them happy.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 77,
+      "somali": "Weey fadhidaa alaabtaan",
+      "english": "This stuff is down/not working (literally: sitting).",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 78,
+      "somali": "Hal'abuur ahaa!",
+      "english": "What an innovation!",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 79,
+      "somali": "Haddaad Shuubo Balansanaysana mari!",
+      "english": "If you deposit, go through the appointment/schedule! (implying delays).",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 80,
+      "somali": "nio rabkan adaa sameeyey miyaaa",
+      "english": "Bro, did you make this rap?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 81,
+      "somali": "Xayeysiin wee dhaaf tay tan Premier Bank 100%",
+      "english": "This has gone beyond advertising, Premier Bank 100%.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 82,
+      "somali": "Premier Bank ma sas bad u wareerten",
+      "english": "Premier Bank, have you become this confused?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 83,
+      "somali": "Wuu fidhiyaa",
+      "english": "It is sitting/down (not working).",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 84,
+      "somali": "Waxaas wxpa laguma helo adiina liita dadka wxba ha u xayeysiina",
+      "english": "You don't get anything from that, you are weak/poor, don't advertise anything to people.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 85,
+      "somali": "Xayey siin oo free isteel ah premier Bank",
+      "english": "Advertising that is free style, Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 86,
+      "somali": "Keliya hal cilad unba la idin ku qaba, bila fasax ayaad qofka lacagtiisa isagala baxaysan",
+      "english": "We only have one problem with you; you withdraw the person's money without permission.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 87,
+      "somali": "Wax badan cilad arkay maba ka qabanayan waqtiyada qaar",
+      "english": "I saw many errors, they don't even fix it sometimes.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 88,
+      "somali": "Wafi master card is the best",
+      "english": "Wafi master card is the best.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 89,
+      "somali": "Kenya Maka qadan karaa",
+      "english": "Can I get it in Kenya?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 90,
+      "somali": "Waxanu nahay ID kar",
+      "english": "We need ID [cards].",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 91,
+      "somali": "Premier Bank Best Somaalia",
+      "english": "Premier Bank Best Somalia.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 92,
+      "somali": "Wlh waaa kadhisay",
+      "english": "I swear you built it / nailed it.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 93,
+      "somali": "Tuugo tihiin wallhi iska soo celiya aad account kala baxdeen kadibna aad dhahdeen master card ka jaranay",
+      "english": "You are thieves, I swear return the money you took from the account and then said 'we deducted for master card'.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 94,
+      "somali": "3 years ayaa wax online kaga gadaayay lkn hadaa tugo noqoteen salaam bank furtay keliya lacagta isoo celiya",
+      "english": "I have been buying things online for 3 years, but now that you became thieves I opened Salaam Bank, just return my money.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 95,
+      "somali": "Laxankaan ustaadki waynaa Yusuf Mohamed miyaa saaray tolow?",
+      "english": "I wonder if the great master Yusuf Mohamed put this melody on?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 96,
+      "somali": "Masuuliyad maba qaadi karaan qolyahaan heesaha xayaysiiska moodaya, yaaba isku halayn kara.",
+      "english": "These people who think songs are advertisements cannot take responsibility, who can rely on them?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 97,
+      "somali": "Waa bangiga kali eh ee maalgalin an bxin hadana yirahdo macashisa waa bixinaa",
+      "english": "It is the only bank that does not provide investment but then says 'we pay profit'.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 98,
+      "somali": "Saving account world elite ma lagu sameesan karaa",
+      "english": "Can a World Elite saving account be created?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 99,
+      "somali": "Premier Bank Zurich malooga casheyn karaa",
+      "english": "Premier Bank, can one have dinner in Zurich [using it]?",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 100,
+      "somali": "Elite card muxuu uga duwan yahay kaarka caadiga ah",
+      "english": "How is the Elite card different from the regular card?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 101,
+      "somali": "First of all, consider customer care then advertise",
+      "english": "First of all, consider customer care then advertise.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 102,
+      "somali": "Premier pank ❌ Free style pank ✅",
+      "english": "Premier bank ❌ Free style bank ✅",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 103,
+      "somali": "Bangiga kaliya ee lacagta kuugu jirta xili walba la bixi kara waaye kan aaminad ma galo",
+      "english": "It is the only bank where the money inside can be taken out at any time, this one cannot be trusted.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 104,
+      "somali": "Saan mee u fududahay",
+      "english": "Is it this easy?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 105,
+      "somali": "Rafiiqayga Premier MasterCard dunida oo dhan ayaad kaga adeegan kartaa waa la hubaa",
+      "english": "My friend Premier MasterCard, you can shop with it all over the world, it is certain.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 106,
+      "somali": "Somali salaam pank magaraysaan war iyo dhamaantiis",
+      "english": "You won't reach/match Somali Salaam Bank, news and all.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral (Competitor)",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 107,
+      "somali": "Qaabkee ma iisharxi kartaan",
+      "english": "How? Can you explain to me?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 108,
+      "somali": "Sidee loo samesta premier bank wa rabaa inaa samesto",
+      "english": "How to create Premier Bank [account], I want to create one.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 109,
+      "somali": "Mastercard evc ma kula bixi karaa lacag anoo isticmaalaya mobileka gacanta",
+      "english": "Can I withdraw money with Mastercard EVC while using the mobile phone?",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 110,
+      "somali": "Beijing iga daayo damal free iga dhig hal mar",
+      "english": "Leave Beijing alone, make Damal free for me for once.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 111,
+      "somali": "Somali halaga saaro blacklisted Swift transfer",
+      "english": "Somalia should be removed from the blacklisted Swift transfer.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 112,
+      "somali": "War adeeg xumadan iska daaya oo muddo laba isbuuca lacag aan account giina ku diray baan qof igu shuba bank account la ahay",
+      "english": "Hey, stop this bad service; for two weeks I have been waiting for money I sent to your account... I am a depositor.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 113,
+      "somali": "Poor quality service baad meesha ku haysan sababta shaqaale xumada",
+      "english": "You have poor quality service there because of bad employees.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 114,
+      "somali": "Heesta ayaaba iga gadantay guuleesta prem. Bank",
+      "english": "The song itself sold me [on it], succeed Prem. Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 115,
+      "somali": "Premier Bank Mastercard kayga io $5 dollar aawey",
+      "english": "Premier Bank, where is my Mastercard and $5 dollars?",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Currency Availability",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 116,
+      "somali": "Xayesinta hala siyo dhalin yarada",
+      "english": "The advertising should be given to the youth.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 117,
+      "somali": "Waa raab caadi eheyn",
+      "english": "It is an extraordinary rap.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 118,
+      "somali": "Premier Bank jir oo joog i,a",
+      "english": "Premier Bank exist and stay, Insha Allah.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 120,
+      "somali": "Abu Bakar Nuur: Hhhh xayeysiin aa Hees cml udhagaystay🤣😂xayeysiin Raab ah Faraska Madow waxuu la cadaan wayey hal abuur waye",
+      "english": "Hhhh, I listened to an advertisement that was like a song 🤣😂 a Rap advertisement; Faraska Madow [creator name] couldn't get lighter skin due this creativity.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 121,
+      "somali": "Eng Yuyu: Caddeyn uma baahna inuu Premier Mastercard wax kale yahay. 🤩",
+      "english": "It needs no proof that Premier Mastercard is something else (exceptional). 🤩",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 122,
+      "somali": "Abdinasir Osman Ahmed: VAR cidna idinkuma raadineyso ilaa aad ka bixisan 8.56$ aad account kala baxdeen aad soo celiseen kalsoni ma jireyso",
+      "english": "No one is checking VAR for you until you pay back the $8.56 you took from the account; until you return it, there is no trust.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 123,
+      "somali": "Ahmed Jaangoan: Xayeysiis rap ah! Woow tan xayeysiis waa dhaaftay. Waa hees rap ah.",
+      "english": "A rap advertisement! Wow, this has surpassed advertising. It is a rap song.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 124,
+      "somali": "Mohamed Sholi: Anaa qirayo billahi, inaad bank kiyada kale ka fican tihin waxana tihin haqabtirayasha bulshada jiro jooga ✊😎",
+      "english": "I testify by Allah that you are better than other banks and you are the ones satisfying the society; exist and stay.",
+      "risk_category": "General",
+      "risk_subcategory": "Feedback",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 125,
+      "somali": "Abdkhadar Hassan Aden: Anoo sacuudiga jooga ayaa ku laandhereenaaye Premier Mastercard waliba NFC Machine mahadsanidiin",
+      "english": "While I am in Saudi Arabia, I am living large with Premier Mastercard, especially the NFC Machine, thank you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 126,
+      "somali": "Apdullhi Hirzi: Maalinka aad deposit ATM aduunka laga samen karo aad kentaan ayaad top 1 noqondontaan",
+      "english": "The day you bring the ability to make ATM deposits from [anywhere in] the world, you will become top 1.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 127,
+      "somali": "Updyrahmaan Gahayr: Abti qaranka maxaad ugu so kala qabateen",
+      "english": "Uncle, why did you divide the nation like that?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 128,
+      "somali": "Mubarak Ahmed: Lacagta E-Vissa isaga ayay ku urursataan sow maaha.",
+      "english": "They collect the E-Visa money on it, don't they?",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 129,
+      "somali": "Mohamed Zaid: Unfollow iska dhaha landers waxan qashinka Intan gacanta ula tagayno 😡",
+      "english": "Just say unfollow, Landers [Somalilanders], before we touch this trash. 😡",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 130,
+      "somali": "Sakarie Mowlid Aden: Fack off khaaimiin ayaad tihii",
+      "english": "F*** off, you are traitors.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 131,
+      "somali": "Zhaafici Ibrahiim: Bankan vila wardhiglayba laga mamuula",
+      "english": "This bank is managed from Villa Wardhiglay [Villa Somalia/Mogadishu Govt].",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 132,
+      "somali": "Hassan Barawani: Lacagah kala baxa reer somaliland",
+      "english": "Withdraw your monies, people of Somaliland.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 133,
+      "somali": "Bashir Husen: Bangigaa waa in la iska ilaliyaaa",
+      "english": "This bank must be avoided.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 134,
+      "somali": "Hassan Ibrahim Fiiqow: Salaam Somali Bank dagdag maqabto meel uma socoto... raabkaa rabtiin qaada shidanaaba shidan😂",
+      "english": "Salaam Somali Bank has no rush, it's not going anywhere... take whatever rap you want, it's already lit.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 135,
+      "somali": "Abdimajid Ali: Aniga tijaabyay dunidu igu xiray Waaba ciil-tiraha la sheego 😤",
+      "english": "I tested it, it connected me to the world. It is the 'anger-reliever' that is spoken of.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 136,
+      "somali": "Mohamed Shaakir: Faanka, iyo Tayo xumida waxaad u tihiin HOGAAN.",
+      "english": "For showing off and poor quality, you are LEADERS.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 137,
+      "somali": "Abdullahi Nasri: Lakiin hal dhib aya jirta mastercard waafi ma garaysan",
+      "english": "But there is one problem, it hasn't reached Waafi Mastercard [level].",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 138,
+      "somali": "Zalim Upthii Mohmet: Dhiig miiratoy umada ka xishooda",
+      "english": "Bloodsuckers, have some shame in front of the public.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 139,
+      "somali": "Abdi Burcaawi: Tuug ayaad tihiin hawlahan aad ku jirtaan hadii aad ka bixin weydaan walaahy ganacsigiina ayuu ka go'an yahay...",
+      "english": "You are thieves; if you don't stop these activities, I swear your business will be cut off... you have a warning Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 140,
+      "somali": "Aqoonyahan Yahye Ibraahim: Dawlada somaliland waa inay talaabo idinka qaada",
+      "english": "The Somaliland government must take action against you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 141,
+      "somali": "Amir Lafole: Premier bank waxaan idinkula talin lahaa inaad sameysataan shirkad isgaarsiin...",
+      "english": "Premier Bank, I would advise you to create a telecommunication company...",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Regulatory/Sharia",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 142,
+      "somali": "Yaaser Arafad: Xaaladiina Xayeysiiska inta may maroysaa... teamka Xayeysiinta idin Sameysey Jeebka ma u qoyseen ama qado ley u dalab teen...",
+      "english": "Has your advertising situation reached this level? ... The team that made the ad for you, did you wet their pockets [pay them well] or just order them lunch?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 143,
+      "somali": "Ayuub Sh Doon: Atm_yada dibadda marka lacag lagala baxaayo culees ayaa xagiina ka jiro ee iska xaliya",
+      "english": "When withdrawing money from ATMs abroad, there is a difficulty on your side, so fix it.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 144,
+      "somali": "Aadan Nuur Xuseen: Somaliland deg deg maxkamadaha haw saarto sherkada prinmer banka ee somalia ee kusoo duushey jirtaanka jamuuriyada Somaliland",
+      "english": "Somaliland courts should immediately take action against the Premier Bank company of Somalia that has attacked the existence of the Somaliland Republic.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 145,
+      "somali": "Mustafe Qamarka: [Image Text] KACDOON SHACAB... CANCELLED premier bank",
+      "english": "[Image Text] Public Uprising... CANCELLED Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 146,
+      "somali": "Mohamed Apdi Lahi: Somaliland way idinka dhamaatay!",
+      "english": "Somaliland is finished for you!",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 147,
+      "somali": "Abdifatah Kasim: Hadaan heestan xiftiyo tolow card bilaash ah ma leeyahay😂",
+      "english": "If I memorize this song, I wonder if I get a free card? 😂",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 148,
+      "somali": "Zey Gedi: Musharka u kordhiya qolada xayeysiinta u xilsaaran. 🤩🤌🏽",
+      "english": "Increase the salary for the team in charge of advertising. 🤩🤌🏽",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Fee Transparency",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 149,
+      "somali": "NAhidaz Ali: Aad baa u xayeesiin badan tihiin, aadna waad u liidataam!",
+      "english": "You advertise too much, and you are very weak/poor quality!",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Data Privacy",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 150,
+      "somali": "Abdikadar Ahmed: Dahabshiil baan jawabta ka sugeenaa",
+      "english": "We are waiting for the answer/response from Dahabshiil.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 151,
+      "somali": "Mohamed Shide Saleban: Balantayadi waa inaan abaalkiina Idin Marino berri meesha aad doonaysaan inaad khiyaamaysaan...",
+      "english": "Our promise is that we will pay you back tomorrow; regarding the place you want to cheat... it is a promise that you will leave Somaliland.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 154,
+      "somali": "Waa inoo beri hadaan maydkiina qaadi waayo waxba hayga qorina",
+      "english": "It is on for tomorrow; if I fail to carry your dead bodies, don't write anything about me.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 155,
+      "somali": "Diyaar ahaadda shacabka Jamhuuriyadda Somaliland lacagihiina kala baxa bank maaha ee waa meel mooryaani leedahay",
+      "english": "Be ready, people of the Republic of Somaliland, withdraw your money; it is not a bank but a place owned by bandits/thugs.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 156,
+      "somali": "Tuugta waa in albaabada loo xidhaa aniga wallet lacagi igaga jirtay iga haystaan macal ducmantiga somaliland ma aqonsanin ayay ku dhahayan",
+      "english": "The thieves must be closed down; they are holding my money in a wallet because they say they don't recognize Somaliland documents.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "System Downtime",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 157,
+      "somali": "Post gan falcelinta bulshada ayay ku fiirinayaan 🤣🤣",
+      "english": "With this post, they are checking the public's reaction 🤣🤣.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 158,
+      "somali": "Wixiina kala soo baxa waxani bank ma ahne, maalin dhow albaabada ayaa loo laabayaa tuugada, bank wuxuu qabilsan yahay in lacagta lagu dhaqo dadka masaakiinta ah cashuurta looga qaado",
+      "english": "Withdraw your things, this is not a bank; soon the doors will be closed on these thieves. A bank is supposed to launder money (?) and take taxes from poor people.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 159,
+      "somali": "Khamiista goob kasta oo slnd ku taala hala burburiyo lacag ahana kala sii baxa kaadhadhkoodana u daadiya",
+      "english": "On Thursday, destroy every location in Somaliland, withdraw money beforehand and throw away their cards.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 160,
+      "somali": "Premier Bank waa in laga tashadaa reer somaliland",
+      "english": "Premier Bank must be decided upon [dealt with], people of Somaliland.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 161,
+      "somali": "Waaan laga guuraa Mar hadaad Qayb ka tihiin dhibaataynta Dalkayaga",
+      "english": "We are moving away [from you] since you are part of the harming of our country.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 162,
+      "somali": "Waa inuu beri nio",
+      "english": "It must be tomorrow, bro.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 163,
+      "somali": "Tuugo umada xaday",
+      "english": "Thieves who stole from the nation.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 164,
+      "somali": "Wax yarbaa ka hadhayw khamiista halagaadho allihiin baad u aamusantihiine anaga qaranlayaga kama kaftanee",
+      "english": "Little time is left, let Thursday arrive; you are silent for your God [shocked], but we do not joke about our nationhood.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 165,
+      "somali": "Dalka kabaxa",
+      "english": "Get out of the country.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 166,
+      "somali": "Mid Baasaboor ka Somalia turkey ga ku joogo ayaa ku leh xogtiina privacy maahan indha Adeeg badan wuxu fifa premier wallet ✌️😎",
+      "english": "One with a Somalia passport staying in Turkey is telling you your data isn't private; so much impudence, this thing is FIFA Premier wallet.",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Data Privacy",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 167,
+      "somali": "KACDOON SHACAB... CANCELLED premier bank",
+      "english": "PUBLIC UPRISING... CANCELLED Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 168,
+      "somali": "Dalkyga so faragaliseen somaha",
+      "english": "You interfered in my country, didn't you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 169,
+      "somali": "Please use dahabshiil and daraslam bank",
+      "english": "Please use dahabshiil and daraslam bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral (Competitor)",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 170,
+      "somali": "Wa ino iyo barri tuugayahay qaran dumiskii",
+      "english": "It is between us and tomorrow, you thieves, destroyers of the nation.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 171,
+      "somali": "Bank wixii lacag idinku jirta waa inad kala baxdaan reer SOMALILAND waa cadowga dalka buu ka mid yahay ee mafiada XAMAR lugta u qabtay bulshada somaliland",
+      "english": "People of Somaliland must withdraw whatever money is in the bank; it is one of the enemies of the country, the XAMAR [Mogadishu] mafia that has grabbed the leg of the Somaliland society.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 172,
+      "somali": "dadka maxaa ka qaldan premier bank ma dowlad buu idinla eekaday waa xarun ganacsi oo dowlad iyo shacab ba ciday doonta accoun ka furan karto...",
+      "english": "What is wrong with people? Did Premier Bank look like a government to you? It is a business center where government or public or anyone can open an account...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 173,
+      "somali": "Daalimiin",
+      "english": "Oppressors/Tyrants.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 174,
+      "somali": "Premier wallet lhayninee iga soo doonta Mastercard kiinaan intaanaan gubin qashinyahay",
+      "english": "I don't have Premier wallet, come get your Mastercard from me before I burn it, you trash.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 175,
+      "somali": "Shaqo wacan",
+      "english": "Good work.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 176,
+      "somali": "Naga soo hagaaga Ey ey dhashy baa tihiin",
+      "english": "Fix yourselves for us, you are dogs born of dogs.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 177,
+      "somali": "Premier Bank to the world Foostadii ugu weyn abid baa niila soo riixay oo dhanka ganacsiga ah...",
+      "english": "Premier Bank to the world, the biggest barrel ever has been pushed towards us in terms of business...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 178,
+      "somali": "Khamiista bal hafurnato walahi Somaliland waad ka guuraysan somalia kaliya ku eekandoontaan",
+      "english": "Just let it be open on Thursday, I swear you will move out of Somaliland, you will be limited to Somalia only.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 179,
+      "somali": "Munaafiqiinti qaranka wa ino bari i.a",
+      "english": "The hypocrites of the nation, it is tomorrow for us, Insha Allah.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 180,
+      "somali": "Aroorta 13 November hassan bahane bal wax Hayden qabto cadho ha lawada saro 😡",
+      "english": "On the morning of November 13th, Hassan Bahane, let's see what you have, let everyone mount their anger 😡.",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Regulatory/Sharia",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 181,
+      "somali": "E Visa imisa iidinka soo xarooday????",
+      "english": "How much revenue came to you from E-Visa????",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 182,
+      "somali": "Somalilamd Kama sii jiraysaan dagaalka aadkula jirtaan dalkayaguna maaha mid aad ka macashi doontaan insha Allah",
+      "english": "You will not continue to exist in Somaliland; the war you are waging against our country is not one you will profit from, Insha Allah.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 183,
+      "somali": "Horumar wacan",
+      "english": "Good progress.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 184,
+      "somali": "lacaga kla baxa dhamaan",
+      "english": "Withdraw all the money.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 185,
+      "somali": "Waa laydinka qabanayaaa dalka dhowaan",
+      "english": "You will be stopped from the country soon.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 186,
+      "somali": "Jaabir Kayse Cali shir saxafaded kii ay qabanayeen ma kan baa kkkkkkkkk",
+      "english": "Jaabir Kayse Cali, was the press conference they were holding about this? kkkkkkk.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 187,
+      "somali": "PREMIER BANK WAA BANK DALKA HORUMAR KU SOO KODHIYAY",
+      "english": "PREMIER BANK IS A BANK THAT BROUGHT PROGRESS TO THE COUNTRY.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 188,
+      "somali": "Un fellow waa bangi qaran dumisa yaan waxba la dhigan",
+      "english": "Unfollow, it is a nation-destroying bank, don't deposit anything.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 189,
+      "somali": "Dhibta Shacabka reer Somaliland ee Qaybta ka noqoteen waxay sababi doontaa inaad kacdaan isla markaana Maxkamad laydin saari doono.",
+      "english": "The harm to the people of Somaliland that you became part of will cause you to go bankrupt and also you will be put on trial.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 190,
+      "somali": "Ka yaaca. Ka yaaca baad ururiyaasha shisheeyaha.",
+      "english": "Run away from it. Run away from it, you collectors of foreigners.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 191,
+      "somali": "Beri wlhy wa la burburinaya xarumihiina hadaan midh nagasoo hadhayn nacala idin dhalee",
+      "english": "Tomorrow, I swear, your centers will be destroyed if even one of us is left, curse on you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 192,
+      "somali": "War wa laydin shidaya khamista suga anagu wxa ma qorne😂",
+      "english": "Hey, you will be lit up [trouble coming], wait for Thursday, we don't just write things 😂.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 193,
+      "somali": "When are you going to add options from crypto to Premier Bank account.",
+      "english": "When are you going to add options from crypto to Premier Bank account.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 194,
+      "somali": "Waa inaad Premier Bank Somaliland ku qortaan Page kiina Hadii kle talaabo aydan mahadin by shacabka Somaliland idinka qaadayaan.",
+      "english": "You must write 'Premier Bank Somaliland' on your Page; otherwise, the people of Somaliland will take a step/action you will not appreciate against you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 195,
+      "somali": "Tuugta xamar la shaqeysa wadanka waa ladinka saaraya",
+      "english": "The thieves working with Xamar [Mogadishu] will be removed from the country.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 196,
+      "somali": "War munaafiqiin baad tihiin xasan gurguurte ushaqaynayaa kabaxa soomaliland 😂",
+      "english": "Hey, you are hypocrites working for Hassan Gurguurte [President Hassan Sheikh], get out of Somaliland 😂.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 197,
+      "somali": "Dooni mayo premier bank futadii xasan sheikh",
+      "english": "I don't want Premier Bank, the ass of Hassan Sheikh.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 198,
+      "somali": "Koonto maxaad ka wadaan wamaxy afkaasi",
+      "english": "What are you doing with 'Koonto' [Account], what language is that?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 199,
+      "somali": "Hadiiba aad bilowdeen inaad reer Soomaliland lacag baad ah oo xaaran ah uga qaadan Xasan Sheekh, Somaliland way idiinka dhamaatay...",
+      "english": "Since you have started taking extortion money and haram money from the people of Somaliland for Hassan Sheikh, Somaliland is finished for you...",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Regulatory/Sharia",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 200,
+      "somali": "Tuugo",
+      "english": "Thieves.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 201,
+      "somali": "Waa In ber iyo khamista",
+      "english": "It is [between us] tomorrow and Thursday.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 202,
+      "somali": "Tuugta khiyaano qaran",
+      "english": "The thieves of national treason.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 203,
+      "somali": "Come Soon Nov 13 Malinti Qaranka😂😂",
+      "english": "Come Soon Nov 13, National Day 😂😂.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 204,
+      "somali": "Waar is diyaariya bati tuugyahay khaayinul wadanka ahi lacagtayadiina waa idinka la baxnay wadankana waad nooga baxaysaan be ready tomorrow",
+      "english": "Prepare yourselves, you big thieves, traitors of the country; we withdrew our money from you and you are leaving the country for us, be ready tomorrow.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 205,
+      "somali": "waana iska saare maxaa adeeg ah",
+      "english": "And I removed it, what kind of service is this.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 206,
+      "somali": "Wallet maanu ld numar lahayn",
+      "english": "Doesn't the Wallet have an ID number?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 207,
+      "somali": "Lacagtaydii waan kala baxay premier bank",
+      "english": "I withdrew my money from Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 208,
+      "somali": "Bank caalami ah",
+      "english": "International Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 209,
+      "somali": "Wallet la idiinkama fadhiyo ee eedda ama iska duwa oo qodob aanu aqbli karno la gole yimaada...",
+      "english": "We don't expect/want a Wallet from you; either clear the accusation and come to the public with a point we can accept...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 211,
+      "somali": "Omar Agay: Dadka horbodayo dacayada riqiista ha ogaden somali waxa keliya ooy kanoled waaganac siga xorta ah hadan lajoojin dulmiga ey wadan dadka kasojeda gobolada wawooyi...",
+      "english": "Let the people leading the cheap propaganda know that Somalis only survive on free trade; if the injustice they are carrying out against people from the Northern regions [Somaliland] is not stopped...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 212,
+      "somali": "Wasiim Mahmut: Bari waan is arki doonaan",
+      "english": "Tomorrow we will see each other.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 213,
+      "somali": "Mukhtaar Abdi Ramadaan: Bank waxaanu leenahay foostada evisa dhinac iskaga riixa",
+      "english": "We say to the bank, push the E-Visa barrel aside [distanced yourselves from the visa tax corruption].",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 214,
+      "somali": "Xayaad Xigma Cumar: Burcad tuug maafiya ayaad isku darsateen",
+      "english": "You have combined bandits, thieves, and mafia all in one.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 215,
+      "somali": "Libn Líífo: Maxa adeeG ah wan delete 😂😂",
+      "english": "What service? I am deleting it 😂😂.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 216,
+      "somali": "Cabdiraxmaan Cabditimir: Wa in sidii soltelco iyo telesom shacabku wa shamsi ku qaadaaan",
+      "english": "The public should storm them just like they did with Soltelco and Telesom.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 217,
+      "somali": "Cabdi Rahman Uweys: Bandhiga ugu hormarsan dalka",
+      "english": "The most advanced exhibition in the country.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 218,
+      "somali": "Omer A Hassan: wa remove ba dogs bad tihine",
+      "english": "It is 'remove' [uninstall], you are dogs.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 219,
+      "somali": "Mohamed Abdirahman Saed: Ader lacagihiina ka urursada waa ishaynaa beriye",
+      "english": "Uncle, collect your monies from them, it is [happening] tomorrow.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 220,
+      "somali": "Abdiasis Abdulahi: Delete ban siiyey be maxa adeeg ah",
+      "english": "I gave it 'delete', what kind of service is this .",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 221,
+      "somali": "Xidig Nageeye: Xaar xaar baa iigsa soo ura sidii aan u maqley iney evisah kullug lee yihiin",
+      "english": "I smell s*** from it ever since I heard they are involved/have a hand in the E-Visa.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 222,
+      "somali": "Cabdiqaadir Jaamac: Horumar wacan",
+      "english": "Good progress.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 223,
+      "somali": "Mahamett Amiin Ahmett: Wale bari inaad qaxdaan Mooye Xal Kale idiinma taal",
+      "english": "I swear, other than fleeing tomorrow, there is no other solution for you.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 224,
+      "somali": "AbdiJibaar O. Mohammed: Dalka waa idinka saarayaa diyaar garooba",
+      "english": "We are removing you from the country [Somaliland], get ready.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 225,
+      "somali": "Hussein Daanshood: Dhawaan waa laydin soo gaba gabeyn doona insha allahu .",
+      "english": "Soon you will be concluded/finished, Insha Allah.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 226,
+      "somali": "Maxamuud Ismaaciil: Dagaal u diyaar garooba dhamaan reer soomaliland aad la gashaan primer bank madaama uu isagu hor bilaabay",
+      "english": "Get ready for war, all people of Somaliland, to enter against Premier Bank since they started it first.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 227,
+      "somali": "Apdiaziz Ahmed: Waa ino khamiista wixii catalow carar imikaba 🔥🔥",
+      "english": "It is Thursday for us; anyone who is weak/coward, run now 🔥🔥.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 228,
+      "somali": "Abdikarim Ali Askar: 12 dollar oo lays kala baxo amar la, aan mahayno",
+      "english": "We don't have an order to withdraw $12 [sarcasm about fees].",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 229,
+      "somali": "Abdullahi A. Yuusuf: Cidi u bahan Account Premier bank wa diyar... qof kas oo laga rabo Documents Dowlad. 👋",
+      "english": "Anyone who needs a Premier Bank Account is ready... every person is required to have Government Documents. 👋",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 230,
+      "somali": "Shaafici Maxamuud Abdi: Alaabtina kasii qata mesha",
+      "english": "Take your things [money] from the place.",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 231,
+      "somali": "MaDar Omař: Foostadii E-visa meel ma iskaga riixdeen inaydan qayb ka ahayn oo dalalka calamka bankinu uu lacagta uga soo ururiyo🙄",
+      "english": "Did you push aside the E-Visa barrel [claiming] you are not part of it, and that the bank collects money for it from world countries? 🙄",
+      "risk_category": "General",
+      "risk_subcategory": "Spam/Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 232,
+      "somali": "Abdifatah Hariir Guleid: Labada lixa iyo Khamiista 👈",
+      "english": "The two sixes [date/time?] and Thursday 👈.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 233,
+      "somali": "Cabdalla Isxaaq Xuseen: Marna ha baqinna #PremierBank wxii la idin geysto somtel io dahabshiil aa laga...",
+      "english": "Never fear #PremierBank, whatever is done to you, Somtel and Dahabshiil will be... [retaliated against/blamed].",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 234,
+      "somali": "Axmed Xasan: Best great",
+      "english": "Best great.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 235,
+      "somali": "Ali Mukhtar: Premier Bank adeeg amaano iyo daacad guulesta",
+      "english": "Premier Bank, honest and trustworthy service, succeed.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 236,
+      "somali": "Maxamed Axmed: Waa ino Bari lacagtaba hadaan so qaDan wayo Mesha taala 😂",
+      "english": "It is tomorrow for us, if I fail to get the money lying there [I'll be in trouble] 😂.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 237,
+      "somali": "Zamira Apdikadir: premier wallet is the best wlhi",
+      "english": "Premier wallet is the best, I swear.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 238,
+      "somali": "Abdi Wahid Halas: Barri ayaan idinka dhaansanayaa idinna xaraabaysi qyaabad iskaga jirtaan",
+      "english": "Tomorrow I will withdraw [my fill] from you; you are involved in tricky/nonsense games.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 239,
+      "somali": "Khaalid Ibnu Abdi Abees: Khamiista go aan baa laydinka gaadhaya gaar ahaan Somaliland Premier Bank",
+      "english": "On Thursday a decision is being reached about you, especially in Somaliland, Premier Bank.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 240,
+      "somali": "UPthi Madoobe Farxaan: Xayasiin Aan loo Joogin Isku Boojeeya Toos niila Raafa 😂😂",
+      "english": "Advertise where no one is present, push yourselves, straight to the trash with you 😂😂.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 241,
+      "somali": "Sakarie Mahad Yousuf: Goor ay noqotaba JSL waa laydinka sifayne iska cambuulaysta.",
+      "english": "Whenever it may be, you will be cleansed from JSL (Somaliland), so just eat your cambuulo (keep dreaming).",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 242,
+      "somali": "Abdiladiv Omar: Hadiiba aad bilowdeen inaad reer Soomaliland lacag baad ah oo xaaran ah uga qaadan Xasan Sheekh, Somaliland way idiinka dhamaatay...",
+      "english": "Since you started taking extortion money and haram money from the people of Somaliland for Hassan Sheikh, Somaliland is finished for you...",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Regulatory/Sharia",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 243,
+      "somali": "Mohamed Abdirahman Seid: War taga jinaas yhy",
+      "english": "Go away, you devils.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 244,
+      "somali": "Abdirashid Ahmed-Nour Souly: Aaaya Calooshood ushaqeystayaashii Ku kacsanaa bank gaan 😅",
+      "english": "Oh, the stomach-workers [mercenaries] who were against this bank [are here] 😅.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 245,
+      "somali": "Hibo Jirde: Post ma waxaa usoo dhigteen in la idinku kacsanyahay iyo in kale inaa ogaataan😓",
+      "english": "Did you post this to know if people are against you or not? 😓",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 246,
+      "somali": "Mohamed Mohamoud Adem: Qaran dumis baad tihiin, waa laydiun jeedaa",
+      "english": "You are nation destroyers, you are being watched.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 247,
+      "somali": "Abdirahman Abdirahman: wixiina kala baxa landers",
+      "english": "Withdraw your things, Landers [people of Somaliland].",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 248,
+      "somali": "Abdullahi Ismail Awad: Hadii aanad qayb ka ahayn waxa la sheegayo is cadeeya oo kala saara ka somaliland iyo kan somalia oo laba page u kala sameeya",
+      "english": "If you are not part of what is being said, clarify it and separate the Somaliland one and the Somalia one, and make two separate pages for them.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 249,
+      "somali": "Abdi Shakuur Mohamet: Wlhi oo blhi hadaan DAWLAD wax idinka qaban anago shacaba oo dhalinyar ah weliga ba hawadiina kicinayna...",
+      "english": "I swear by Allah, if the GOVERNMENT doesn't do something about you, we the public and youth will never boost your air/reputation...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 250,
+      "somali": "Ahmed Wardi: Somaliland way idiinka dhamaatay shacabka somaliland diyaar ahaada tuugta dhashay kala baxa lacagtiina",
+      "english": "Somaliland is finished for you; people of Somaliland be ready, withdraw your money from the born thieves.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 252,
+      "somali": "Abdiaziiz Abdalla Osman: Masha Allah waan u Jedna in hormar balaran Aad sameysen oo la idinka hiinsay oo xaqliyal la idinku so diray Gulleysta mar walbo Mel walbo Aad Xarun Ku lehedihiin",
+      "english": "Masha Allah, we see that you have made huge progress and people are jealous/envious of you and sending \"mind games\" against you; Succeed always, everywhere you have a center.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 253,
+      "somali": "Yaasiin Jaamac: waa in laysaga guura isticmaalka premier mar hadii uu qayb ka noqday dhibaataynta shacabka reer somaliland",
+      "english": "We must move away from using Premier since it has become part of the harming of the people of Somaliland.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 254,
+      "somali": "Fartun Aadan: Premier waa adeeg laga wada relay dhamaan aduunka oodhan waana adeeg casri ah dag dag siimo wacan hore usocda guul iyo gobonomo xawaalad sareysa",
+      "english": "Premier is a service relied upon all over the world, it is a modern service, fast, good provision, keep going forward, success and sovereignty, a high-level transfer service.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 255,
+      "somali": "Fawsi Ciise: Tuugsi ayaan tihiin umadana way idinka tashan doontaa 🤣",
+      "english": "You are begging/beggars, and the public will decide against you (boycott you) 🤣.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 256,
+      "somali": "Saed Bigile: Afka halkaa ku qorani maaha lahjada Somaliland sidaa daraadeed waa inaa Somaliland si degdeg ah uga baxdaan",
+      "english": "The language written there is not the Somaliland dialect, therefore you must leave Somaliland immediately.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 257,
+      "somali": "Gobaad Aden: E.visa dii kawarama ma khali garaysen",
+      "english": "Tell us about the E-visa, have you cleared/solved it?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 258,
+      "somali": "Baxsane Axmed: Hadaanu idinka dhanaansan weyno waad nooso dhigateene 😂🚩",
+      "english": "If we don't withdraw [our fill/funds] from you, you will set traps for us 😂🚩.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 259,
+      "somali": "Wacays Ali Omar: Waan iska Joojiyey Adeegiinii Madaamo oo aad Huwan Noqoteen si aad dadka reer Somaliland u dhibaateysaana Aad La shaqeysanaysaan Mooryaanta Xamar Joogta",
+      "english": "I stopped using your service since you became a 'Huwan' (militia/proxy) to harm the people of Somaliland and you are working with the Mooryaan (bandits) staying in Xamar [Mogadishu].",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 260,
+      "somali": "Mukhtaar Haaji Mire: Premier bank waa bank u adeega bulshadiisa guuleeysta",
+      "english": "Premier Bank is a bank that serves its society, succeed.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 261,
+      "somali": "Saddam Carab: Haduu kugu dumay dadka amaahi!",
+      "english": "If it collapsed on you, loan to the people!",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 262,
+      "somali": "Abdisalaan Ciise Ismail: Dalka iskaga baxa waxad dhawac ku tihiin qaranimada Somaliland laydin dulqadan mayo bararusooy",
+      "english": "Get out of the country, you are an injury to the nationhood of Somaliland, you will not be tolerated, you cockroaches.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 263,
+      "somali": "Abdirahman Ibrahim Egalgelle: WAAR LACAGTAADA KALA BAX INTA AAN LAGAA XANIBIN",
+      "english": "HEY WITHDRAW YOUR MONEY BEFORE IT IS BLOCKED/FROZEN FROM YOU.",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Account Freezing",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 264,
+      "somali": "Zaki Saeed Fiish: Miyaan waalanahay markan khaainul waddan shirkadooda isticmaalyo",
+      "english": "Am I crazy to be using the company of national traitors at this time?",
+      "risk_category": "Compliance & Legal",
+      "risk_subcategory": "Regulatory/Sharia",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 265,
+      "somali": "Sakariye Xasan: oo mashala reer somaliland sirta fahma khamiista🤫",
+      "english": "Oh Mashallah, people of Somaliland understood the secret, Thursday 🤫.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 266,
+      "somali": "Suhayb Ahmath: Tuugbaa tihiin",
+      "english": "You are thieves.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 267,
+      "somali": "Nahaar Ibnu Yasin: Wallet bad ka sheekaynsaa khamiista la idinku soo socda adeeer",
+      "english": "You are talking about Wallet? Thursday they are coming for you, uncle.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 268,
+      "somali": "Zaki Abdyzalan: Baad urursadayaal",
+      "english": "Extortion collectors.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 269,
+      "somali": "Tèacher Cabdimajiid QaLinle: Tuug qaran dumis",
+      "english": "Thieves, nation destroyers.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 270,
+      "somali": "Mubaarig Tolwanaje: Tuug ayaa tihiin",
+      "english": "You are thieves.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 271,
+      "somali": "Maarig Cabdi: Waa inooyo Barri",
+      "english": "It is [between us] tomorrow.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 272,
+      "somali": "We love Somaliland: Somaliland way idiinka dhamaatay!",
+      "english": "Somaliland is finished for you!",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 273,
+      "somali": "Sharmake Dhado: Premier wallet kaaga haboon kuwa kale",
+      "english": "Premier wallet is more suitable for you than others.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 274,
+      "somali": "A Fathah Ahmeth: Inaan furto ayaan rabay waan se ka laabatay Dahabshiil baa inoo balan ah",
+      "english": "I wanted to open [an account] but I turned back, Dahabshiil is the promise for us.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral (Competitor)",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 275,
+      "somali": "Muhzin Moha: Post waxay uso dhigeen si ay u ogadeen inay dadka ku kacsan yihiin iyo in kalle! 😂",
+      "english": "They posted this just to know if people are rising up against them or not! 😂",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 276,
+      "somali": "Jss En: Khamista iskga sii orda gobihiina somaliland 🦕",
+      "english": "Run away from your Somaliland locations on Thursday 🦕.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 277,
+      "somali": "Abdirisak Qobcade: Cidii lacag ugu jirtaa hakala baxdo ee reer Somaliland ah bangigagan albaabadaa loo laabayaa bisha danbe insha allah",
+      "english": "Anyone from Somaliland who has money in it should withdraw it; this bank's doors are being closed next month, Insha Allah.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 278,
+      "somali": "Maxamed Muuse: Lacagta reer somaliland oo ay gacantooda dulmane uga yihiin dad aqoon cadowgooda waa ka maalgalin doon diyaarada hargeysa dumin doona mustaqbalka...",
+      "english": "The money of Somaliland people... they are funding the airplane that will destroy Hargeisa in the future with the people's own money...",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 279,
+      "somali": "Bintu Ibrahim Hussein: Bari waa ina albaabada lagu laaba hadii alle idmo dawladii hadii ay kaa warwareegtay shacabkaa ku sheegaya waxad tahay xoog albaabada kugu laabaya",
+      "english": "Tomorrow the doors must be closed, God willing; if the government hesitates/delays, the public will show you who you are and close the doors on you by force.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 280,
+      "somali": "Sacad Mohamed Aw Hassan: Daalimiin qaranka kusoo dulay ayaad tihiin",
+      "english": "You are oppressors who invaded the nation.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 281,
+      "somali": "Mahamud Abdi Haji: Waa Bank aad u fiican intaan ka isticmaalay",
+      "english": "It is a very good Bank as much as I have used it.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 282,
+      "somali": "Sharmake Dhado: Adeega koobad ee dalka #premierwallet",
+      "english": "The number one service in the country #premierwallet.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 283,
+      "somali": "Hoodo Cawed: Lagu baray oo lagu baray.",
+      "english": "You were taught a lesson/You were known.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 284,
+      "somali": "Idriz Abdi Yuzf: Tiug tuug dhashay",
+      "english": "Thief born of a thief.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 285,
+      "somali": "Jamo Whouter: Aar ilahay ka baqoo umada dhibka ka daaya",
+      "english": "Oh, fear God and stop harming the public.",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Safety",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 286,
+      "somali": "Mohammed Ilaaq: Waa inoo bari albaabadaa layskugu kiin laabayaa shuubaa idin dhashaye",
+      "english": "It is tomorrow for us, the doors will be closed on you, you were born of calamity/trash.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Market Panic",
+      "risk_level": "Critical"
+    },
+    {
+      "row_number": 287,
+      "somali": "Waar kani bank Maaha wallahay Shalay ayaan utagnay Qolo xawaalad ah ayaa lacag noogu soo diray Wixi naga raacay waan yaabnay wallahay",
+      "english": "This is not a bank, I swear to God. We went to a remittance company yesterday. They sent us money, and we were shocked by what happened to us, I swear to God.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 288,
+      "somali": "Dadka intooda badan waa small\nScale businesses, marka la dhaho bixi $25 maintenance fee bill walbo, 3-4% transaction fee maxaa usoo harayo?",
+      "english": "Most people are small-scale businesses, so when they are told to pay a $25 maintenance fee for every bill, and a 3-4% transaction fee, what is left for them?",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 289,
+      "somali": "Waar kani bank 🏦 maha, waligey wax ka services xun man arkin runtii waaa very poor service.",
+      "english": "This is not a bank 🏦, I have never seen worse services, it is truly very poor service.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 290,
+      "somali": "Isn't there any response",
+      "english": "Sow jawaab ma jirto",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 291,
+      "somali": "Ama isheg number customèr care ah",
+      "english": "Or give me a customer care number.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Customer Service",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 292,
+      "somali": "Sxb iga cawiya sidi an lcag ku dhigi laha walletkeyga",
+      "english": "Friend, help me how to deposit money into my wallet.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 293,
+      "somali": "Premier Bank 10 kan fee ee Mastercard aad ka goosanaysaani waa noocma nio! Fee-gee sanadlaha ahaa ma soo dhaafteen 😡 transaction walba fee bad ka goosanaysaan, sannadkiina fee bad naga qaadaysaan",
+      "english": "Premier Bank, what kind of 10-fee is this for the Mastercard you are deducting?! Haven't you passed the annual fee 😡 you deduct many fees for every transaction, and you also take many fees from us annually.",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Fee Transparency",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 294,
+      "somali": "Is it scam or genuine?",
+      "english": "Is it scam or genuine?",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Ethical & Trust",
+      "risk_level": "High"
+    },
+    {
+      "row_number": 295,
+      "somali": "Somalia 🇸🇴 bank 🏦 be careful guys",
+      "english": "Somalia bank be careful guys",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 296,
+      "somali": "Uganda xafiis makuleedihii",
+      "english": "Does Uganda have an office?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 297,
+      "somali": "Salaam Bank free ayaa la helayaa maxaa lagu falayaa kan.",
+      "english": "Salaam Bank is available for free, what is the use of this one?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral (Competitor)",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 298,
+      "somali": "sow ma ogidin inaad dadka dhacdaan oo tidhaahdaan lacagtii waad la baxaday marka qofku cardka galiyo ushaqayn waayo kadibna message usoo dhaco inuu lacagtii la baxaday oo aad diideeen inaad camerada eegtaan inaan lacag qaatay dadbadan lacagtoodii sidaa kuwaayay Hargeisa",
+      "english": "Didn't you know that you rob people and say that you have withdrawn the money when the person puts the card in and it doesn't work, and then a message comes to them that they have withdrawn the money, and you refuse to look at the camera to see if I have taken the money, many people lost their money like that in Hargeisa.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Failure",
+      "risk_level": "Medium"
+    },
+    {
+      "row_number": 299,
+      "somali": "maxa lagu egaa akonka",
+      "english": "What is the account checked for?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 300,
+      "somali": "Master Card Premier Bank waa $3, sanadkiina $12 ayay kaa goosan — bishii $1. Marka aad lacag ku shubato ayaa lagaa jarayaa, hore laguuguma sheegayo, mana jirto meel caddeynaysa jaristaas ama si furan laguugu sheegi maayo.\nMaster Card Darasalaam waa free, sanadkiina waxba lagaa goosan maayo.\nHaddana weli waxaad arkaysaa dad iibsanaya Premier Bank Master Card.\n\"Nin qalbi la quraanka uu akhriyay Qaaf dhe ku haraadye.\"",
+      "english": "Master Card Premier Bank is $3, and they deduct $12 annually — $1 per month. When you deposit money, it is deducted, you are not told beforehand, and there is no place to clarify this deduction or tell you openly. Darasalaam Master Card is free, and nothing is deducted from you annually. Yet, you still see people buying Premier Bank Master Card. \"A person whose heart reads the Quran with 'Qaaf' is still thirsty.\"",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Transaction Issue",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 301,
+      "somali": "Guuleysta waxaan idinka codsaneynaa in\nElite card qiima jaban qurbajoogta uga dhigtaan si ayagoo dalka ka maqan ay lacag kaga shubtaan wadan walba oo ay jooga si sahlana ay kala bixi karaan",
+      "english": "Congratulations, we ask you to make the Elite card cheap for the diaspora so that they can deposit money from any country they are in while they are away from the country and withdraw it easily.",
+      "risk_category": "Liquidity Risk",
+      "risk_subcategory": "Withdrawal Limits",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 302,
+      "somali": "Visa card si online ah ma u furan karaa",
+      "english": "Can I open a Visa card online?",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 303,
+      "somali": "Adeeg dunida la jaanqaaday waad heysaaan Blse\nMa aadan baran la macaamilka macmiilka",
+      "english": "You have a service that is in line with the world, but you haven't learned how to deal with the customer.",
+      "risk_category": "Operational Risk",
+      "risk_subcategory": "Technical Support",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 304,
+      "somali": "Service charge ka yareeya",
+      "english": "Reduce the service charge",
+      "risk_category": "Reputational Risk",
+      "risk_subcategory": "Fee Transparency",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 305,
+      "somali": "Appka aad ayu uhoseya nashqadentisa iska hagajiya, it’s disgusting",
+      "english": "The app's design is very low, fix it, it’s disgusting.",
+      "risk_category": "General",
+      "risk_subcategory": "Neutral",
+      "risk_level": "Low"
+    },
+    {
+      "row_number": 306,
+      "somali": "Premier Bank qeybta bank statements address ku soo dara iney soo aqriso",
+      "english": "Premier Bank, include the address in the bank statements section so they can read it.",
+      "risk_category": "Security & Fraud",
+      "risk_subcategory": "Data Privacy",
+      "risk_level": "Low"
+    }
+  ]
+}

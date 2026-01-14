@@ -1,0 +1,23 @@
+Category,Subcategory,User Signal / Context (Examples),
+1. Operational Risk,Technical Failure,"App crashes, UI/UX bugs, website login errors, server-side issues.",
+1. Operational Risk,Transaction Issue,"Money debited but not received, remittance delays, failed transfers.",
+1. Operational Risk,Access & Identity,"OTP (SMS) not arriving, blocked passwords, login authentication failures.",
+1. Operational Risk,System Downtime,"""The whole system is down,"" ""Bank is offline,"" widespread outages.",
+2. Reputational Risk,Customer Service,"Rude staff, ignored support tickets, long wait times on phone or in-branch.",
+2. Reputational Risk,Ethical & Trust,"Allegations of corruption, unfair treatment, rumors of insolvency or scams.",
+2. Reputational Risk,Fee Transparency,"Complaints about ""hidden"" charges, unexplained commissions, high rates.",
+3. Liquidity Risk,Withdrawal Limits,"Unable to withdraw cash from ATMs or branches, daily limit restrictions.",
+3. Liquidity Risk,Market Panic,"""Run on the bank"" signals: ""Take your money out now before they close!""",
+3. Liquidity Risk,Currency Availability,Shortage of USD or local currency (common in the Somali context).,
+4. Security & Fraud,Phishing & Scams,"Reports of fake WhatsApp groups, fraudulent SMS, or fake bank pages.",
+4. Security & Fraud,Account Takeover,"""My account was hacked,"" ""Money disappeared without my knowledge.""",
+4. Security & Fraud,Data Privacy,Concerns over leaked personal info or bank statements shared publicly.,
+5. Compliance & Legal,Account Freezing,"Accounts blocked due to AML/KYC checks, ""Bank won't release my funds.""",
+5. Compliance & Legal,Regulatory/Sharia,Complaints regarding non-compliance with Islamic banking or local laws.,
+,,,
+,,,
+Risk Level,Definition,Examples / Indicators,Urgency
+Low,Routine inquiries or minor dissatisfaction with no direct threat to the bank.,"General questions about branch hours, exchange rates, or simple feature requests.",Routine (Monitor)
+Medium,Individual service issues or isolated technical bugs.,"""I forgot my password,"" ""The app is slow today,"" or complaints about a specific teller.",Standard (Support)
+High,Serious financial or technical issues affecting trust or money.,"Failed transactions, money missing from account, or allegations of fraud/scams.",High (Escalate)
+Critical,Systemic threats that could cause mass panic or widespread failure.,"App-wide outages, ""Bank Run"" calls (withdraw everything!), or confirmed security breaches.",Immediate (Emergency)
